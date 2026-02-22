@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VakilAI — India's AI Legal Advisor</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ─────────────────────────────────────────
+   DESIGN TOKENS  — strict 8px base grid
+───────────────────────────────────────── */
+:root {
+  /* Spacing (multiples of 8) */
+  --sp-1: 4px;   --sp-2: 8px;   --sp-3: 12px;  --sp-4: 16px;
+  --sp-5: 20px;  --sp-6: 24px;  --sp-7: 28px;  --sp-8: 32px;
+  --sp-10: 40px; --sp-12: 48px; --sp-16: 64px; --sp-20: 80px;
+  --sp-24: 96px; --sp-32: 128px;
+
+  /* Typography scale */
+  --text-xs: 11px;   --text-sm: 13px;   --text-base: 15px;
+  --text-lg: 17px;   --text-xl: 20px;   --text-2xl: 24px;
+  --text-3xl: 30px;  --text-4xl: 38px;  --text-5xl: 52px;
+  --text-6xl: 68px;
+
+  /* Line heights */
+  --lh-tight: 1.15;  --lh-snug: 1.35;  --lh-base: 1.6;  --lh-loose: 1.8;
+
+  /* Letter spacing */
+  --ls-tight: -0.03em;  --ls-normal: -0.01em;  --ls-wide: 0.04em;  --ls-wider: 0.1em;
+
+  /* Colors */
+  --c-void: #080808;     --c-dark: #111111;    --c-dark2: #1c1c1c;
+  --c-dark3: #252525;   --c-mid: #404040;     --c-muted: #666666;
+  --c-faint: #999999;   --c-dim: #cccccc;
+  --c-paper: #f6f5f1;   --c-cream: #faf9f6;   --c-white: #ffffff;
+  --c-border: #e8e5de;  --c-border2: #d4d0c8;
+
+  --c-gold: #b8930f;    --c-gold2: #d4a820;   --c-gold3: #f0c840;
+  --c-gold-soft: #fdf5dc; --c-gold-tint: #fff9e8;
+
+  --c-green: #1a5c38;   --c-green2: #2d7a50;  --c-green-soft: #e8f5ee;
+  --c-blue: #1e3a6e;    --c-blue2: #2952a0;   --c-blue-soft: #edf2ff;
+  --c-red: #b01c1c;     --c-red-soft: #fdf0f0;
+
+  /* Radii */
+  --r-sm: 6px;   --r-md: 10px;  --r-lg: 16px;  --r-xl: 22px;  --r-pill: 999px;
+
+  /* Shadows */
+  --sh-sm: 0 1px 4px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+  --sh-md: 0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+  --sh-lg: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+  --sh-xl: 0 24px 64px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.08);
+  --sh-gold: 0 4px 24px rgba(184,147,15,0.35);
+  --sh-gold-lg: 0 8px 40px rgba(184,147,15,0.45);
+
+  /* Container */
+  --max-w: 1160px;
+  --max-w-sm: 680px;
+}
+
+/* ─── RESET ─── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--c-cream); color: var(--c-dark); min-height:100vh; overflow-x:hidden; -webkit-font-smoothing: antialiased; }
+a { text-decoration:none; color:inherit; }
+button { cursor:pointer; font-family:inherit; border:none; }
+input, select, textarea { font-family:inherit; }
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-thumb { background:var(--c-border2); border-radius:4px; }
+img { display:block; max-width:100%; }
+
+/* ─── MODE SWITCH ─── */
+#landing { display:block; }
+#app { display:none; height:100vh; flex-direction:column; overflow:hidden; }
+#app.active { display:flex; }
+
+/* ══════════════════════════════════════════════
+   LANDING PAGE
+══════════════════════════════════════════════ */
+
+/* ─── NAV ─── */
+.nav {
+  position: fixed; top:0; left:0; right:0; z-index:100;
+  height: 64px;
+  background: rgba(8,8,8,0.94);
+  backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items:center; justify-content:space-between;
+  padding: 0 clamp(var(--sp-6), 5vw, 80px);
+}
+.nav-logo { display:flex; align-items:center; gap:var(--sp-3); }
+.nav-icon {
+  width: 36px; height:36px;
+  background: var(--c-gold);
+  border-radius: var(--r-md);
+  display:flex; align-items:center; justify-content:center;
+  font-size: 17px; flex-shrink:0;
+  box-shadow: 0 2px 8px rgba(184,147,15,0.4);
+}
+.nav-brand { display:flex; flex-direction:column; }
+.nav-name {
+  font-family:'Playfair Display', serif;
+  font-size: var(--text-xl); font-weight:700;
+  color: var(--c-white); letter-spacing: var(--ls-tight);
+  line-height: 1.1;
+}
+.nav-tagline {
+  font-size: var(--text-xs); color: rgba(255,255,255,0.35);
+  text-transform:uppercase; letter-spacing: var(--ls-wider);
+  line-height: 1;
+}
+.nav-links { display:flex; align-items:center; gap:var(--sp-1); }
+.nav-link {
+  font-size: var(--text-sm); font-weight:500;
+  color: rgba(255,255,255,0.55);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--r-pill);
+  transition: color .18s, background .18s;
+}
+.nav-link:hover { color:#fff; background:rgba(255,255,255,0.07); }
+.nav-actions { display:flex; align-items:center; gap:var(--sp-2); }
+.nav-btn-ghost {
+  font-size: var(--text-sm); font-weight:500;
+  color: rgba(255,255,255,0.65);
+  padding: var(--sp-2) var(--sp-5);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--r-pill);
+  background: transparent;
+  transition: all .18s;
+}
+.nav-btn-ghost:hover { color:#fff; border-color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.06); }
+.nav-btn-primary {
+  font-size: var(--text-sm); font-weight:700;
+  color:#fff;
+  padding: 10px var(--sp-6);
+  background: var(--c-gold);
+  border-radius: var(--r-pill);
+  box-shadow: var(--sh-gold);
+  transition: all .2s;
+  display:flex; align-items:center; gap:var(--sp-2);
+}
+.nav-btn-primary:hover { background: var(--c-gold2); transform:translateY(-1px); box-shadow: var(--sh-gold-lg); }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100vh;
+  background: var(--c-void);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding: 120px clamp(var(--sp-6), 6vw, 100px) var(--sp-24);
+  text-align:center;
+  position:relative; overflow:hidden;
+}
+/* Atmospheric background */
+.hero::before {
+  content:'';
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -5%, rgba(184,147,15,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 15% 85%, rgba(29,90,56,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 85% 75%, rgba(30,58,110,0.10) 0%, transparent 55%);
+  pointer-events:none;
+}
+/* Subtle grid */
+.hero::after {
+  content:'';
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events:none;
+}
+.hero-inner { position:relative; z-index:1; max-width:740px; margin:0 auto; }
+.hero-eyebrow {
+  display: inline-flex; align-items:center; gap: var(--sp-2);
+  background: rgba(184,147,15,0.1);
+  border: 1px solid rgba(184,147,15,0.25);
+  color: var(--c-gold2);
+  font-size: var(--text-xs); font-weight:700;
+  text-transform:uppercase; letter-spacing: var(--ls-wider);
+  padding: 6px var(--sp-4);
+  border-radius: var(--r-pill);
+  margin-bottom: var(--sp-7);
+  animation: fadeSlideDown .6s ease-out both;
+}
+.hero-dot { width:6px; height:6px; background:var(--c-gold2); border-radius:50%; animation: blink 2s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.hero h1 {
+  font-family:'Playfair Display', serif;
+  font-size: clamp(var(--text-4xl), 7vw, var(--text-6xl));
+  font-weight: 700;
+  color: var(--c-white);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  margin-bottom: var(--sp-6);
+  animation: fadeSlideUp .7s .1s ease-out both;
+}
+.hero h1 em { color: var(--c-gold2); font-style:italic; }
+
+.hero-sub {
+  font-size: clamp(var(--text-base), 2.2vw, var(--text-lg));
+  color: rgba(255,255,255,0.5);
+  line-height: var(--lh-loose);
+  max-width: 520px; margin: 0 auto var(--sp-10);
+  font-weight: 400;
+  animation: fadeSlideUp .7s .2s ease-out both;
+}
+
+.hero-ctas {
+  display:flex; align-items:center; justify-content:center;
+  gap: var(--sp-3); flex-wrap:wrap;
+  animation: fadeSlideUp .7s .3s ease-out both;
+}
+.cta-primary {
+  display:flex; align-items:center; gap:var(--sp-2);
+  background: var(--c-gold);
+  color: var(--c-void);
+  font-size: var(--text-base); font-weight:700;
+  padding: 15px var(--sp-8);
+  border-radius: var(--r-pill);
+  box-shadow: var(--sh-gold-lg);
+  transition: all .22s;
+}
+.cta-primary:hover { background:var(--c-gold2); transform:translateY(-2px); box-shadow: 0 12px 48px rgba(184,147,15,0.55); }
+.cta-secondary {
+  display:flex; align-items:center; gap:var(--sp-2);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.8);
+  font-size: var(--text-base); font-weight:500;
+  padding: 15px var(--sp-8);
+  border-radius: var(--r-pill);
+  border: 1px solid rgba(255,255,255,0.14);
+  transition: all .22s;
+}
+.cta-secondary:hover { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.3); }
+
+/* Hero stats strip */
+.hero-stats {
+  display:flex; align-items:center; justify-content:center;
+  gap: var(--sp-12); flex-wrap:wrap;
+  margin-top: var(--sp-20);
+  padding-top: var(--sp-10);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  animation: fadeSlideUp .7s .45s ease-out both;
+}
+.hero-stat { text-align:center; }
+.hero-stat-n {
+  font-family:'Playfair Display', serif;
+  font-size: var(--text-3xl); font-weight:700;
+  color: var(--c-gold2); line-height:1;
+  margin-bottom: var(--sp-1);
+}
+.hero-stat-l {
+  font-size: var(--text-xs); font-weight:600;
+  text-transform:uppercase; letter-spacing: var(--ls-wider);
+  color: rgba(255,255,255,0.3);
+}
+.hero-stat-div { width:1px; height:40px; background:rgba(255,255,255,0.08); }
+
+/* Scroll indicator */
+.hero-scroll {
+  position:absolute; bottom:var(--sp-8); left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:var(--sp-2);
+  color: rgba(255,255,255,0.25);
+  font-size: var(--text-xs); letter-spacing:var(--ls-wider);
+  text-transform:uppercase; z-index:1;
+  animation: float 2.5s ease-in-out infinite;
+}
+.scroll-line { width:1px; height:32px; background:rgba(255,255,255,0.15); animation: scrollPulse 2.5s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-5px)} }
+@keyframes scrollPulse { 0%,100%{opacity:.3} 50%{opacity:.8} }
+
+/* ─── FEATURES SECTION ─── */
+.section {
+  padding: var(--sp-20) clamp(var(--sp-6), 5vw, 80px);
+  max-width: calc(var(--max-w) + 160px);
+  margin: 0 auto;
+}
+.section-inner { max-width: var(--max-w); margin:0 auto; }
+
+.section-header { margin-bottom: var(--sp-12); }
+.section-kicker {
+  display:inline-flex; align-items:center; gap: var(--sp-2);
+  font-size: var(--text-xs); font-weight:700;
+  text-transform:uppercase; letter-spacing: var(--ls-wider);
+  color: var(--c-gold);
+  margin-bottom: var(--sp-3);
+}
+.section-kicker::before { content:''; display:inline-block; width:16px; height:2px; background:var(--c-gold); border-radius:2px; }
+.section-title {
+  font-family:'Playfair Display', serif;
+  font-size: clamp(var(--text-3xl), 4vw, var(--text-5xl));
+  font-weight:700; line-height:var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--c-dark);
+  margin-bottom: var(--sp-4);
+}
+.section-desc {
+  font-size: var(--text-base);
+  color: var(--c-muted);
+  line-height: var(--lh-loose);
+  max-width: 480px;
+}
+
+/* Features grid — masonry-inspired layout */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--sp-4);
+}
+.feat-card {
+  background: var(--c-white);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-xl);
+  padding: var(--sp-8);
+  cursor:pointer;
+  position:relative; overflow:hidden;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.feat-card:hover { transform:translateY(-4px); box-shadow: var(--sh-lg); border-color:transparent; }
+.feat-card.col-4 { grid-column: span 4; }
+.feat-card.col-6 { grid-column: span 6; }
+.feat-card.col-8 { grid-column: span 8; }
+.feat-card.col-12 { grid-column: span 12; }
+.feat-card.tall { min-height: 280px; display:flex; flex-direction:column; justify-content:space-between; }
+.feat-card.featured-card {
+  background: var(--c-dark);
+  border-color: var(--c-dark);
+  color: var(--c-white);
+}
+.feat-card.featured-card:hover { background: var(--c-dark2); }
+
+.feat-chip {
+  display:inline-flex; align-items:center; gap:var(--sp-1);
+  font-size: var(--text-xs); font-weight:700;
+  text-transform:uppercase; letter-spacing:var(--ls-wide);
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  margin-bottom: var(--sp-4);
+}
+.chip-blue { background:var(--c-blue-soft); color:var(--c-blue2); }
+.chip-gold { background:var(--c-gold-soft); color:var(--c-gold); }
+.chip-green { background:var(--c-green-soft); color:var(--c-green2); }
+.chip-red { background:var(--c-red-soft); color:var(--c-red); }
+.chip-dark { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); }
+
+.feat-icon-wrap {
+  width: 52px; height:52px;
+  border-radius: var(--r-md);
+  display:flex; align-items:center; justify-content:center;
+  font-size: 24px;
+  margin-bottom: var(--sp-5);
+  flex-shrink:0;
+}
+.icon-blue { background:var(--c-blue-soft); }
+.icon-gold { background:var(--c-gold-soft); }
+.icon-green { background:var(--c-green-soft); }
+.icon-red { background:var(--c-red-soft); }
+.icon-dark { background:rgba(255,255,255,0.08); }
+
+.feat-card h3 {
+  font-size: var(--text-xl); font-weight:700;
+  letter-spacing: var(--ls-tight);
+  margin-bottom: var(--sp-2);
+  line-height: var(--lh-snug);
+}
+.feat-card.featured-card h3 { color:var(--c-white); }
+.feat-card p {
+  font-size: var(--text-sm); color:var(--c-muted);
+  line-height: var(--lh-loose);
+}
+.feat-card.featured-card p { color:rgba(255,255,255,0.5); }
+
+.feat-arrow {
+  position:absolute; top:var(--sp-6); right:var(--sp-6);
+  width:32px; height:32px; border-radius:50%;
+  background:var(--c-paper); border:1px solid var(--c-border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; color:var(--c-muted);
+  transition:all .2s;
+}
+.feat-card:hover .feat-arrow { background:var(--c-dark); color:var(--c-white); border-color:var(--c-dark); transform:translate(2px,-2px); }
+.feat-card.featured-card .feat-arrow { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.1); color:rgba(255,255,255,0.5); }
+.feat-card.featured-card:hover .feat-arrow { background:var(--c-gold); border-color:var(--c-gold); color:var(--c-void); }
+
+/* Big card decoration */
+.feat-deco {
+  position:absolute; right:-20px; bottom:-20px;
+  width:120px; height:120px; border-radius:50%;
+  opacity:0.06; pointer-events:none;
+}
+
+/* ─── METRICS BAND ─── */
+.metrics-band {
+  background: var(--c-dark);
+  padding: var(--sp-12) clamp(var(--sp-6), 5vw, 80px);
+}
+.metrics-inner {
+  max-width: var(--max-w); margin:0 auto;
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap: 1px;
+  background: rgba(255,255,255,0.07);
+  border-radius: var(--r-xl); overflow:hidden;
+}
+.metric {
+  background: var(--c-dark);
+  padding: var(--sp-8);
+  text-align:center;
+}
+.metric-n {
+  font-family:'Playfair Display', serif;
+  font-size: var(--text-4xl); font-weight:700;
+  color: var(--c-gold2); line-height:1;
+  margin-bottom: var(--sp-2);
+}
+.metric-l {
+  font-size: var(--text-xs); font-weight:600;
+  text-transform:uppercase; letter-spacing:var(--ls-wider);
+  color: rgba(255,255,255,0.3);
+}
+
+/* ─── HOW IT WORKS ─── */
+.how-section {
+  background: var(--c-cream);
+  padding: var(--sp-20) clamp(var(--sp-6), 5vw, 80px);
+}
+.steps-grid {
+  max-width: var(--max-w); margin: 0 auto;
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap: var(--sp-6);
+  position:relative;
+}
+/* Connecting line */
+.steps-grid::before {
+  content:'';
+  position:absolute;
+  top: 26px; left:12%; right:12%;
+  height:1px;
+  background: linear-gradient(90deg, transparent, var(--c-border2) 15%, var(--c-border2) 85%, transparent);
+  pointer-events:none;
+}
+.step {
+  background: var(--c-white);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-xl);
+  padding: var(--sp-8) var(--sp-6);
+  position:relative;
+  transition: box-shadow .2s;
+}
+.step:hover { box-shadow: var(--sh-md); }
+.step-num {
+  width:52px; height:52px; border-radius:50%;
+  background: var(--c-void); color:var(--c-white);
+  font-family:'Playfair Display', serif;
+  font-size: var(--text-lg); font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom: var(--sp-5);
+  position:relative; z-index:1;
+}
+.step h3 {
+  font-size: var(--text-lg); font-weight:700;
+  letter-spacing:var(--ls-tight);
+  margin-bottom: var(--sp-2);
+  line-height:var(--lh-snug);
+}
+.step p { font-size:var(--text-sm); color:var(--c-muted); line-height:var(--lh-loose); }
+
+/* ─── LANGUAGES SECTION ─── */
+.langs-section {
+  background: var(--c-gold-tint);
+  border-top: 1px solid rgba(184,147,15,0.15);
+  border-bottom: 1px solid rgba(184,147,15,0.15);
+  padding: var(--sp-12) clamp(var(--sp-6), 5vw, 80px);
+}
+.langs-inner { max-width:var(--max-w); margin:0 auto; }
+.langs-top {
+  display:flex; align-items:flex-end; justify-content:space-between;
+  margin-bottom: var(--sp-8);
+}
+.langs-pills {
+  display:flex; flex-wrap:wrap; gap:var(--sp-2);
+}
+.lang-pill-item {
+  display:flex; align-items:center; gap:var(--sp-2);
+  background: var(--c-white);
+  border: 1px solid rgba(184,147,15,0.2);
+  border-radius: var(--r-pill);
+  padding: var(--sp-2) var(--sp-5);
+  font-size: var(--text-sm); font-weight:500;
+  color: var(--c-dark);
+  cursor:pointer; transition:all .15s;
+}
+.lang-pill-item .lp-native { font-size:12px; color:var(--c-faint); margin-left:2px; }
+.lang-pill-item:hover { background:var(--c-dark); color:var(--c-white); border-color:var(--c-dark); }
+.lang-pill-item:hover .lp-native { color:rgba(255,255,255,0.5); }
+
+/* ─── PRICING ─── */
+.pricing-section {
+  padding: var(--sp-20) clamp(var(--sp-6), 5vw, 80px);
+  background: var(--c-white);
+}
+.pricing-grid {
+  max-width: var(--max-w); margin:0 auto;
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap: var(--sp-5);
+  align-items:start;
+}
+.plan-card {
+  border-radius: var(--r-xl);
+  padding: var(--sp-8);
+  border: 1px solid var(--c-border);
+  background: var(--c-cream);
+  position:relative;
+  transition: box-shadow .2s;
+}
+.plan-card:hover { box-shadow: var(--sh-md); }
+.plan-card.featured-plan {
+  background: var(--c-void);
+  border-color: var(--c-void);
+  color: var(--c-white);
+  padding-top: var(--sp-10);
+}
+.plan-badge {
+  position:absolute; top: -13px; left:50%; transform:translateX(-50%);
+  background: var(--c-gold);
+  color: var(--c-void);
+  font-size: var(--text-xs); font-weight:800;
+  text-transform:uppercase; letter-spacing:var(--ls-wide);
+  padding: 5px var(--sp-4);
+  border-radius: var(--r-pill);
+  white-space:nowrap;
+}
+.plan-type {
+  font-size: var(--text-xs); font-weight:700;
+  text-transform:uppercase; letter-spacing:var(--ls-wider);
+  color: var(--c-muted); margin-bottom:var(--sp-4);
+}
+.featured-plan .plan-type { color:rgba(255,255,255,0.4); }
+.plan-price {
+  font-family:'Playfair Display', serif;
+  font-size: var(--text-4xl); font-weight:700;
+  line-height:1; letter-spacing:var(--ls-tight);
+  color: var(--c-dark); margin-bottom:var(--sp-1);
+}
+.featured-plan .plan-price { color:var(--c-gold2); }
+.plan-period {
+  font-size: var(--text-sm); color:var(--c-muted);
+  margin-bottom:var(--sp-7);
+}
+.featured-plan .plan-period { color:rgba(255,255,255,0.4); }
+.plan-divider {
+  height:1px; background:var(--c-border);
+  margin-bottom:var(--sp-7);
+}
+.featured-plan .plan-divider { background:rgba(255,255,255,0.08); }
+.plan-features { list-style:none; margin-bottom:var(--sp-7); }
+.plan-features li {
+  display:flex; align-items:flex-start; gap:var(--sp-3);
+  font-size: var(--text-sm); color:var(--c-dark);
+  padding:var(--sp-2) 0;
+  border-bottom:1px solid var(--c-border);
+}
+.featured-plan .plan-features li { color:rgba(255,255,255,0.75); border-color:rgba(255,255,255,0.07); }
+.plan-features li:last-child { border-bottom:none; }
+.plan-check { color:var(--c-green2); font-weight:700; flex-shrink:0; margin-top:1px; }
+.featured-plan .plan-check { color:var(--c-gold2); }
+.plan-btn {
+  width:100%; padding: 13px;
+  border-radius: var(--r-pill);
+  font-size: var(--text-base); font-weight:700;
+  transition: all .2s;
+}
+.plan-btn-outline {
+  background:transparent;
+  border:1.5px solid var(--c-border2);
+  color: var(--c-dark);
+}
+.plan-btn-outline:hover { background:var(--c-dark); color:#fff; border-color:var(--c-dark); }
+.plan-btn-solid {
+  background:var(--c-gold);
+  color:var(--c-void);
+  border:none;
+  box-shadow:var(--sh-gold);
+}
+.plan-btn-solid:hover { background:var(--c-gold2); transform:translateY(-1px); box-shadow:var(--sh-gold-lg); }
+
+/* ─── TESTIMONIALS ─── */
+.testi-section {
+  padding: var(--sp-20) clamp(var(--sp-6), 5vw, 80px);
+  background: var(--c-cream);
+}
+.testi-grid {
+  max-width: var(--max-w); margin:0 auto;
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap: var(--sp-5);
+}
+.testi-card {
+  background:var(--c-white);
+  border:1px solid var(--c-border);
+  border-radius: var(--r-xl);
+  padding: var(--sp-8);
+  display:flex; flex-direction:column; justify-content:space-between;
+  min-height:220px;
+}
+.testi-stars { color:#f59e0b; font-size:15px; letter-spacing:2px; margin-bottom:var(--sp-4); }
+.testi-quote {
+  font-size: var(--text-sm); color:var(--c-dark2);
+  line-height: var(--lh-loose); font-style:italic;
+  flex:1; margin-bottom:var(--sp-6);
+}
+.testi-author { display:flex; align-items:center; gap:var(--sp-3); }
+.testi-av {
+  width:40px; height:40px; border-radius:50%;
+  background:var(--c-void); color:var(--c-white);
+  display:flex; align-items:center; justify-content:center;
+  font-size: var(--text-base); font-weight:700; flex-shrink:0;
+}
+.testi-name { font-size:var(--text-sm); font-weight:700; color:var(--c-dark); }
+.testi-loc { font-size:var(--text-xs); color:var(--c-muted); margin-top:2px; }
+
+/* ─── FOOTER ─── */
+.footer {
+  background:var(--c-dark);
+  padding: var(--sp-16) clamp(var(--sp-6), 5vw, 80px) var(--sp-10);
+}
+.footer-inner { max-width:var(--max-w); margin:0 auto; }
+.footer-top {
+  display:grid; grid-template-columns:2fr 1fr 1fr 1fr;
+  gap: var(--sp-12); margin-bottom:var(--sp-12);
+  padding-bottom:var(--sp-12);
+  border-bottom:1px solid rgba(255,255,255,0.07);
+}
+.footer-brand-name {
+  font-family:'Playfair Display', serif;
+  font-size:var(--text-2xl); font-weight:700;
+  color:var(--c-white); letter-spacing:var(--ls-tight);
+  margin-bottom:var(--sp-2);
+}
+.footer-brand-tag { font-size:var(--text-xs); color:rgba(255,255,255,0.25); text-transform:uppercase; letter-spacing:var(--ls-wider); margin-bottom:var(--sp-4); }
+.footer-brand-desc { font-size:var(--text-sm); color:rgba(255,255,255,0.35); line-height:var(--lh-loose); max-width:260px; }
+.footer-col-head { font-size:var(--text-xs); font-weight:700; text-transform:uppercase; letter-spacing:var(--ls-wider); color:rgba(255,255,255,0.3); margin-bottom:var(--sp-5); }
+.footer-links { list-style:none; }
+.footer-links li { margin-bottom:var(--sp-3); }
+.footer-links a { font-size:var(--text-sm); color:rgba(255,255,255,0.4); transition:color .15s; }
+.footer-links a:hover { color:var(--c-white); }
+.footer-bottom {
+  display:flex; align-items:center; justify-content:space-between;
+}
+.footer-copy { font-size:var(--text-xs); color:rgba(255,255,255,0.2); }
+.footer-badges { display:flex; gap:var(--sp-2); }
+.footer-badge {
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:var(--r-sm);
+  padding:4px 10px;
+  font-size:var(--text-xs); color:rgba(255,255,255,0.25);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeSlideDown {
+  from { opacity:0; transform:translateY(-12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeSlideUp {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes msgPop {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ══════════════════════════════════════════════
+   APP INTERFACE
+══════════════════════════════════════════════ */
+
+/* ─── APP HEADER ─── */
+#app-header {
+  height: 56px; flex-shrink:0;
+  background: var(--c-dark);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 0 var(--sp-6);
+}
+.app-logo { display:flex; align-items:center; gap:var(--sp-3); }
+.app-logo-icon { width:30px; height:30px; background:var(--c-gold); border-radius:var(--r-sm); display:flex; align-items:center; justify-content:center; font-size:14px; }
+.app-logo-name { font-family:'Playfair Display',serif; font-size:var(--text-xl); color:var(--c-white); letter-spacing:var(--ls-tight); }
+.app-logo-sub { font-size:9px; color:rgba(255,255,255,0.25); text-transform:uppercase; letter-spacing:var(--ls-wider); margin-top:-1px; }
+.app-header-r { display:flex; align-items:center; gap:var(--sp-2); }
+
+/* App header buttons */
+.ahb {
+  display:flex; align-items:center; gap:var(--sp-1);
+  border:none; padding:7px 13px;
+  border-radius:var(--r-pill); font-size:var(--text-xs); font-weight:700;
+  cursor:pointer; transition:all .16s; white-space:nowrap;
+}
+.ahb-ghost { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.1); }
+.ahb-ghost:hover { background:rgba(255,255,255,0.12); color:#fff; }
+.ahb-green { background:var(--c-green2); color:#fff; }
+.ahb-green:hover { background:var(--c-green); }
+.ahb-blue { background:var(--c-blue2); color:#fff; }
+.ahb-blue:hover { background:var(--c-blue); }
+.ahb-gold { background:var(--c-gold); color:var(--c-void); box-shadow:0 2px 10px rgba(184,147,15,0.4); }
+.ahb-gold:hover { background:var(--c-gold2); box-shadow:0 4px 18px rgba(184,147,15,0.55); }
+
+/* Lang dropdown */
+.lang-wrap { position:relative; }
+.lang-dd {
+  display:none; position:absolute; top:calc(100% + 8px); right:0;
+  background:var(--c-white); border:1px solid var(--c-border);
+  border-radius:var(--r-lg); box-shadow:var(--sh-xl);
+  min-width:220px; z-index:400; padding:var(--sp-1); overflow:hidden;
+}
+.lang-dd.open { display:block; }
+.lang-opt {
+  display:flex; align-items:center; gap:var(--sp-3);
+  padding:var(--sp-2) var(--sp-3);
+  cursor:pointer; border-radius:var(--r-md);
+  font-size:var(--text-sm); color:var(--c-dark);
+  transition:background .12s;
+}
+.lang-opt:hover { background:var(--c-paper); }
+.lang-opt.active { background:var(--c-green-soft); color:var(--c-green); font-weight:600; }
+.l-nat { font-size:11px; color:var(--c-faint); margin-left:auto; }
+.l-ck { color:var(--c-green); font-size:14px; display:none; }
+.lang-opt.active .l-ck { display:block; }
+
+/* ─── APP BODY ─── */
+.app-body { display:flex; flex:1; overflow:hidden; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width:224px; flex-shrink:0;
+  background:var(--c-white); border-right:1px solid var(--c-border);
+  display:flex; flex-direction:column; overflow-y:auto;
+}
+.sb-section { padding:var(--sp-4) var(--sp-4); border-bottom:1px solid var(--c-border); }
+.sb-label {
+  font-size:var(--text-xs); font-weight:700;
+  text-transform:uppercase; letter-spacing:var(--ls-wider);
+  color:var(--c-faint); margin-bottom:var(--sp-3);
+  padding-left:var(--sp-1);
+}
+.sb-btn {
+  display:flex; align-items:center; gap:var(--sp-3);
+  width:100%; padding:var(--sp-2) var(--sp-3);
+  border-radius:var(--r-md);
+  border:1px solid transparent;
+  background:transparent;
+  font-size:var(--text-sm); font-weight:500;
+  color:var(--c-mid);
+  cursor:pointer; font-family:inherit;
+  margin-bottom:var(--sp-1);
+  transition:all .14s; text-align:left;
+}
+.sb-btn:hover,.sb-btn.active { background:var(--c-dark); color:#fff; border-color:var(--c-dark); }
+.sb-icon { font-size:15px; flex-shrink:0; }
+.sb-consult {
+  display:flex; align-items:center; justify-content:center; gap:var(--sp-2);
+  width:100%; margin-top:var(--sp-3); padding:10px;
+  background:var(--c-gold); color:var(--c-void);
+  border-radius:var(--r-md); font-size:var(--text-sm); font-weight:700;
+  border:none; cursor:pointer; font-family:inherit;
+  box-shadow:0 2px 10px rgba(184,147,15,0.3);
+  transition:all .18s;
+}
+.sb-consult:hover { background:var(--c-gold2); transform:translateY(-1px); box-shadow:0 4px 20px rgba(184,147,15,0.45); }
+.qk-btn {
+  display:block; width:100%; padding:var(--sp-2) var(--sp-3);
+  border-radius:var(--r-sm); border:1px solid transparent;
+  background:transparent; font-size:12px; color:var(--c-mid);
+  cursor:pointer; font-family:inherit; margin-bottom:var(--sp-1);
+  text-align:left; transition:all .13s;
+}
+.qk-btn:hover { background:var(--c-dark); color:#fff; }
+.sb-disc {
+  margin:var(--sp-3); padding:var(--sp-3);
+  background:var(--c-gold-soft); border:1px solid rgba(184,147,15,0.2);
+  border-radius:var(--r-md);
+  font-size:11px; color:#6b4c11; line-height:var(--lh-loose);
+}
+.sb-disc strong { display:block; font-size:9px; letter-spacing:var(--ls-wide); text-transform:uppercase; color:var(--c-gold); margin-bottom:2px; }
+
+/* ─── CHAT AREA ─── */
+.chat-area { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--c-paper); }
+.messages { flex:1; overflow-y:auto; padding:var(--sp-6) var(--sp-8); display:flex; flex-direction:column; gap:var(--sp-4); }
+.messages::-webkit-scrollbar { width:3px; }
+.messages::-webkit-scrollbar-thumb { background:var(--c-border2); }
+
+/* Welcome */
+.welcome { text-align:center; padding:var(--sp-12) var(--sp-8) var(--sp-8); max-width:560px; margin:0 auto; width:100%; }
+.wlc-icon { font-size:48px; margin-bottom:var(--sp-5); filter:drop-shadow(0 4px 12px rgba(0,0,0,0.1)); }
+.wlc-h { font-family:'Playfair Display',serif; font-size:var(--text-3xl); font-weight:700; letter-spacing:var(--ls-tight); color:var(--c-dark); margin-bottom:var(--sp-3); }
+.wlc-p { font-size:var(--text-sm); color:var(--c-muted); line-height:var(--lh-loose); margin-bottom:var(--sp-6); }
+.wlc-pills { display:flex; flex-wrap:wrap; gap:var(--sp-2); justify-content:center; }
+.wlc-pill {
+  display:flex; align-items:center; gap:var(--sp-1);
+  padding:var(--sp-2) var(--sp-4);
+  background:var(--c-white); border:1px solid var(--c-border);
+  border-radius:var(--r-pill); font-size:var(--text-xs); font-weight:500;
+  color:var(--c-mid); cursor:pointer; transition:all .14s;
+}
+.wlc-pill:hover { background:var(--c-dark); color:#fff; border-color:var(--c-dark); }
+.wlc-pill.p-blue { background:var(--c-blue-soft); border-color:#93c5fd; color:var(--c-blue2); }
+.wlc-pill.p-blue:hover { background:var(--c-blue2); color:#fff; }
+.wlc-pill.p-green { background:var(--c-green-soft); border-color:#a7f3d0; color:var(--c-green2); }
+.wlc-pill.p-green:hover { background:var(--c-green2); color:#fff; }
+.wlc-pill.p-gold { background:var(--c-gold-soft); border-color:#e0c060; color:var(--c-gold); }
+.wlc-pill.p-gold:hover { background:var(--c-gold); color:var(--c-void); }
+
+/* Messages */
+.msg { display:flex; gap:var(--sp-3); max-width:84%; animation:msgPop .2s ease-out; }
+.msg.user { align-self:flex-end; flex-direction:row-reverse; }
+.msg-av {
+  width:30px; height:30px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; flex-shrink:0; margin-top:2px;
+}
+.msg.ai .msg-av { background:var(--c-dark); color:#fff; }
+.msg.user .msg-av { background:var(--c-border); color:var(--c-dark); }
+.msg-body { display:flex; flex-direction:column; gap:var(--sp-1); }
+.msg-lang { font-size:10px; color:var(--c-faint); letter-spacing:.3px; }
+.msg-text {
+  padding:var(--sp-3) var(--sp-4);
+  border-radius:var(--r-md);
+  font-size:var(--text-sm); line-height:var(--lh-loose);
+}
+.msg.ai .msg-text { background:var(--c-white); border:1px solid var(--c-border); border-top-left-radius:3px; }
+.msg.user .msg-text { background:var(--c-dark); color:#fff; border-top-right-radius:3px; }
+.msg-text strong { font-weight:700; }
+.msg-text ul { padding-left:18px; margin:var(--sp-1) 0 var(--sp-2); }
+.msg-text li { margin-bottom:var(--sp-1); }
+.msg-note { font-size:11px; color:var(--c-muted); margin-top:var(--sp-2); padding-top:var(--sp-2); border-top:1px solid var(--c-border); font-style:italic; }
+.msg-actions { display:flex; gap:var(--sp-1); margin-top:var(--sp-1); }
+.msg-act-btn {
+  display:flex; align-items:center; gap:3px;
+  padding:4px 10px; border-radius:var(--r-pill);
+  font-size:10.5px; font-weight:600; border:none; cursor:pointer; font-family:inherit; transition:all .14s;
+}
+.btn-wa { background:#25D366; color:#fff; }
+.btn-wa:hover { background:#128C7E; }
+.btn-cp { background:var(--c-paper); color:var(--c-mid); border:1px solid var(--c-border); }
+.btn-cp:hover { background:var(--c-dark); color:#fff; }
+
+/* Doc analysis */
+.doc-bubble { background:var(--c-blue-soft); border:1px solid #93c5fd; border-radius:var(--r-md); border-top-right-radius:3px; padding:var(--sp-3) var(--sp-4); }
+.doc-bubble .db-name { font-size:var(--text-sm); font-weight:600; color:var(--c-blue2); }
+.doc-bubble .db-meta { font-size:11px; color:var(--c-muted); margin-top:2px; }
+.doc-bubble .db-q { font-size:var(--text-sm); color:var(--c-blue2); margin-top:var(--sp-2); padding-top:var(--sp-2); border-top:1px solid #bfdbfe; }
+.doc-card { background:var(--c-white); border:1px solid var(--c-border); border-radius:var(--r-md); border-top-left-radius:3px; overflow:hidden; }
+.doc-card-head { background:var(--c-dark); color:#fff; padding:var(--sp-3) var(--sp-4); display:flex; align-items:center; gap:var(--sp-2); font-size:var(--text-sm); font-weight:700; }
+.dc-badge { background:var(--c-gold); color:#fff; font-size:9px; padding:2px 8px; border-radius:var(--r-pill); letter-spacing:.5px; }
+.doc-card-body { padding:var(--sp-4); font-size:var(--text-sm); line-height:var(--lh-loose); }
+.doc-card-body ul { padding-left:18px; margin:var(--sp-1) 0 var(--sp-2); }
+.doc-card-body li { margin-bottom:4px; }
+.doc-card-body strong { font-weight:700; }
+.doc-section { margin:var(--sp-4) 0 var(--sp-2); padding:6px 10px; background:var(--c-paper); border-left:3px solid var(--c-gold); border-radius:0 var(--r-sm) var(--r-sm) 0; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--c-mid); display:flex; align-items:center; gap:6px; }
+.doc-section:first-child { margin-top:0; }
+
+/* Typing */
+.typing-wrap { display:flex; gap:var(--sp-3); animation:msgPop .2s ease-out; }
+.typing { display:flex; gap:5px; padding:var(--sp-3) var(--sp-4); background:var(--c-white); border:1px solid var(--c-border); border-radius:var(--r-md); border-top-left-radius:3px; width:fit-content; }
+.dot { width:6px; height:6px; background:var(--c-faint); border-radius:50%; animation:dotB 1.2s infinite ease-in-out; }
+.dot:nth-child(2){animation-delay:.2s} .dot:nth-child(3){animation-delay:.4s}
+@keyframes dotB { 0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-5px);opacity:1} }
+
+/* Lang bar */
+.lang-bar { padding:5px var(--sp-5); background:var(--c-green-soft); border-top:1px solid #d1fae5; font-size:11px; color:var(--c-green2); font-weight:500; display:flex; align-items:center; gap:var(--sp-1); flex-shrink:0; }
+
+/* Progress */
+.progress-wrap { padding:var(--sp-2) var(--sp-5); background:var(--c-white); border-top:1px solid var(--c-border); display:none; flex-shrink:0; }
+.progress-wrap.show { display:block; }
+.progress-lbl { font-size:var(--text-xs); color:var(--c-muted); margin-bottom:5px; display:flex; align-items:center; gap:4px; }
+.progress-track { height:3px; background:var(--c-border); border-radius:3px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--c-blue2),#6366f1); border-radius:3px; animation:pf 2.2s ease-in-out infinite; }
+@keyframes pf{0%{width:8%}50%{width:88%}100%{width:95%}}
+
+/* ─── PANELS ─── */
+.panel-stack { flex-shrink:0; }
+.panel {
+  background:var(--c-white); border-top:2px solid transparent;
+  padding:var(--sp-4) var(--sp-5); display:none;
+  animation:fadeSlideUp .18s ease-out;
+  max-height:360px; overflow-y:auto;
+}
+.panel.show { display:block; }
+.p-doc { border-top-color:var(--c-blue2); }
+.p-gen { border-top-color:var(--c-gold); }
+.p-pred { border-top-color:var(--c-green2); }
+.p-map { border-top-color:var(--c-red); }
+.panel-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--sp-4); }
+.panel-title { font-size:var(--text-sm); font-weight:700; display:flex; align-items:center; gap:var(--sp-2); }
+.panel-close { background:none; border:none; cursor:pointer; color:var(--c-faint); font-size:20px; line-height:1; padding:0; }
+
+/* Doc upload panel */
+.drop-zone { border:2px dashed #93c5fd; border-radius:var(--r-md); padding:var(--sp-6); text-align:center; background:#f8fbff; cursor:pointer; transition:all .2s; margin-bottom:var(--sp-3); }
+.drop-zone:hover,.drop-zone.over { border-color:var(--c-blue2); background:var(--c-blue-soft); }
+.dz-icon { font-size:28px; margin-bottom:var(--sp-2); }
+.dz-text { font-size:var(--text-sm); color:var(--c-muted); }
+.dz-text b { color:var(--c-blue2); }
+.dz-fmt { font-size:11px; color:var(--c-faint); margin-top:3px; }
+.file-prev { display:none; align-items:center; gap:var(--sp-3); background:#f0f9ff; border:1px solid #bae6fd; border-radius:var(--r-md); padding:var(--sp-3); margin-bottom:var(--sp-3); }
+.fp-info { flex:1; }
+.fp-name { font-size:var(--text-sm); font-weight:600; color:#0c4a6e; }
+.fp-sz { font-size:11px; color:var(--c-muted); }
+.fp-rm { background:none; border:none; cursor:pointer; color:var(--c-red); font-size:16px; }
+.doc-q-row { display:flex; gap:var(--sp-2); }
+.doc-q-inp { flex:1; border:1px solid var(--c-border); border-radius:var(--r-sm); padding:var(--sp-2) var(--sp-3); font-size:var(--text-sm); outline:none; background:var(--c-paper); }
+.doc-q-inp:focus { border-color:var(--c-blue2); }
+.doc-analyze-btn { background:var(--c-blue2); color:#fff; border:none; border-radius:var(--r-sm); padding:var(--sp-2) var(--sp-4); font-size:var(--text-sm); font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.doc-analyze-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+/* Gen panel */
+.gen-types { display:flex; gap:var(--sp-2); flex-wrap:wrap; margin-bottom:var(--sp-4); }
+.gen-type-btn { padding:6px 13px; border-radius:var(--r-pill); border:1px solid var(--c-border); background:var(--c-paper); font-size:var(--text-xs); font-weight:600; cursor:pointer; font-family:inherit; transition:all .14s; }
+.gen-type-btn.sel { background:var(--c-dark); color:#fff; border-color:var(--c-dark); }
+.gen-fields { display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-3); margin-bottom:var(--sp-3); }
+.gen-field { display:flex; flex-direction:column; gap:3px; }
+.gen-field.full { grid-column:1/-1; }
+.gen-field label { font-size:10.5px; font-weight:700; color:var(--c-muted); text-transform:uppercase; letter-spacing:.5px; }
+.gen-field input,.gen-field textarea { border:1px solid var(--c-border); border-radius:var(--r-sm); padding:var(--sp-2) var(--sp-3); font-size:var(--text-sm); font-family:inherit; outline:none; background:var(--c-paper); }
+.gen-field textarea { resize:vertical; min-height:54px; }
+.gen-field input:focus,.gen-field textarea:focus { border-color:var(--c-gold); }
+.gen-go-btn { background:var(--c-gold); color:var(--c-void); border:none; border-radius:var(--r-sm); padding:var(--sp-2) var(--sp-5); font-size:var(--text-sm); font-weight:700; cursor:pointer; font-family:inherit; }
+.gen-go-btn:disabled { opacity:.5; cursor:not-allowed; }
+.doc-out { margin-top:var(--sp-3); background:var(--c-paper); border:1px solid var(--c-border); border-radius:var(--r-sm); padding:var(--sp-3); font-size:var(--text-xs); line-height:var(--lh-loose); white-space:pre-wrap; max-height:220px; overflow-y:auto; display:none; }
+.doc-out.show { display:block; }
+.doc-out-acts { display:flex; gap:var(--sp-2); margin-top:var(--sp-2); display:none; }
+.doc-out-acts.show { display:flex; }
+.out-btn { border:none; border-radius:var(--r-sm); padding:7px 13px; font-size:var(--text-xs); font-weight:700; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:4px; }
+.out-btn-green { background:var(--c-green2); color:#fff; }
+.out-btn-wa { background:#25D366; color:#fff; }
+.out-btn-blue { background:var(--c-blue2); color:#fff; }
+
+/* Predictor panel */
+.pred-ta { width:100%; border:1px solid var(--c-border); border-radius:var(--r-sm); padding:var(--sp-3); font-size:var(--text-sm); font-family:inherit; outline:none; resize:vertical; min-height:80px; background:var(--c-paper); margin-bottom:var(--sp-3); }
+.pred-ta:focus { border-color:var(--c-green2); }
+.pred-go { background:var(--c-green2); color:#fff; border:none; border-radius:var(--r-sm); padding:var(--sp-2) var(--sp-5); font-size:var(--text-sm); font-weight:700; cursor:pointer; font-family:inherit; }
+.pred-go:disabled { opacity:.5; cursor:not-allowed; }
+.pred-result { display:none; margin-top:var(--sp-4); }
+.pred-result.show { display:block; }
+.pred-gauge-wrap { text-align:center; margin-bottom:var(--sp-5); }
+.pred-gauge { width:140px; height:70px; margin:0 auto var(--sp-3); border-radius:140px 140px 0 0; overflow:hidden; position:relative; background:conic-gradient(from 180deg at 50% 100%,#ef4444 0deg,#f59e0b 72deg,#22c55e 144deg,transparent 144deg); }
+.pred-mask { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:106px; height:53px; background:var(--c-white); border-radius:106px 106px 0 0; }
+.pred-needle { position:absolute; bottom:0; left:50%; width:2px; height:60px; background:var(--c-dark); transform-origin:bottom center; border-radius:2px; transition:transform 1.2s cubic-bezier(.34,1.56,.64,1); }
+.pred-pct { font-family:'Playfair Display',serif; font-size:var(--text-3xl); color:var(--c-dark); margin-bottom:3px; }
+.pred-strength { font-size:var(--text-sm); font-weight:700; padding:3px 13px; border-radius:var(--r-pill); display:inline-block; }
+.ps-strong,.ps-very-strong { background:var(--c-green-soft); color:var(--c-green2); }
+.ps-moderate { background:#fef3c7; color:#92400e; }
+.ps-weak,.ps-very-weak { background:var(--c-red-soft); color:var(--c-red); }
+.pred-grid { display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-2); margin-bottom:var(--sp-3); }
+.pred-card { background:var(--c-paper); border:1px solid var(--c-border); border-radius:var(--r-md); padding:var(--sp-3); }
+.pred-card-ttl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--c-faint); margin-bottom:var(--sp-2); }
+.pred-card ul { padding-left:14px; font-size:12.5px; line-height:var(--lh-loose); color:var(--c-mid); }
+.pred-card li { margin-bottom:3px; }
+.pred-card.full { grid-column:1/-1; }
+.pred-meta { display:flex; gap:var(--sp-2); flex-wrap:wrap; margin-bottom:var(--sp-3); }
+.pred-meta-pill { background:var(--c-paper); border:1px solid var(--c-border); border-radius:var(--r-sm); padding:5px var(--sp-3); font-size:11px; color:var(--c-mid); }
+.pred-meta-pill span { font-weight:700; color:var(--c-dark); }
+.pred-summary { background:var(--c-green-soft); border:1px solid #bbf7d0; border-radius:var(--r-md); padding:var(--sp-3); font-size:var(--text-sm); line-height:var(--lh-loose); color:#14532d; margin-top:var(--sp-2); }
+
+/* Map panel */
+.map-row { display:flex; gap:var(--sp-2); margin-bottom:var(--sp-3); }
+.map-inp { flex:1; border:1px solid var(--c-border); border-radius:var(--r-sm); padding:var(--sp-2) var(--sp-3); font-size:var(--text-sm); font-family:inherit; outline:none; background:var(--c-paper); }
+.map-inp:focus { border-color:var(--c-red); }
+.map-loc-btn { background:var(--c-red); color:#fff; border:none; border-radius:var(--r-sm); padding:var(--sp-2) var(--sp-3); font-size:var(--text-xs); font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.map-loc-btn:disabled { opacity:.5; }
+.map-srch-btn { background:var(--c-dark); color:#fff; border:none; border-radius:var(--r-sm); padding:var(--sp-2) var(--sp-3); font-size:var(--text-xs); font-weight:700; cursor:pointer; font-family:inherit; }
+.map-status { font-size:var(--text-sm); color:var(--c-muted); text-align:center; padding:var(--sp-5); }
+
+/* ─── INPUT BAR ─── */
+.input-bar {
+  padding:var(--sp-3) var(--sp-5);
+  background:var(--c-white); border-top:1px solid var(--c-border);
+  display:flex; gap:var(--sp-2); align-items:flex-end; flex-shrink:0;
+}
+textarea#ti {
+  flex:1; border:1px solid var(--c-border); border-radius:var(--r-md);
+  padding:var(--sp-2) var(--sp-3);
+  font-size:var(--text-sm); font-family:'Plus Jakarta Sans',sans-serif;
+  resize:none; outline:none; max-height:96px; line-height:var(--lh-loose);
+  background:var(--c-paper); color:var(--c-dark); transition:border-color .14s;
+}
+textarea#ti:focus { border-color:var(--c-dark); background:var(--c-white); }
+textarea#ti::placeholder { color:var(--c-faint); }
+.ib-btn {
+  width:38px; height:38px; border-radius:var(--r-md);
+  border:1px solid var(--c-border); background:var(--c-paper);
+  font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:all .14s; flex-shrink:0;
+}
+.ib-btn:hover { background:var(--c-dark); color:#fff; border-color:var(--c-dark); }
+.ib-btn.ib-on { background:#ef4444; border-color:#ef4444; color:#fff; animation:mPulse 1.5s infinite; }
+.ib-btn.ib-spk { background:var(--c-green2); border-color:var(--c-green2); color:#fff; }
+.ib-btn.ib-doc { background:var(--c-blue-soft); border-color:#93c5fd; color:var(--c-blue2); }
+.ib-btn.ib-doc:hover,.ib-btn.ib-doc.active { background:var(--c-blue2); color:#fff; border-color:var(--c-blue2); }
+.ib-btn.ib-send { background:var(--c-dark); color:#fff; border-color:var(--c-dark); }
+.ib-btn.ib-send:hover { background:var(--c-dark2); }
+.ib-btn.ib-send:disabled { opacity:.4; cursor:not-allowed; }
+@keyframes mPulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)} }
+.voice-hint { text-align:center; font-size:10px; color:var(--c-faint); padding:2px 0; flex-shrink:0; }
+
+/* ─── CALL MODAL ─── */
+#callModal { display:none; position:fixed; inset:0; z-index:999; background:rgba(0,0,0,.55); align-items:center; justify-content:center; }
+#callModal.show { display:flex; }
+.call-card { background:var(--c-white); border-radius:var(--r-xl); width:340px; padding:var(--sp-7) var(--sp-6); text-align:center; box-shadow:var(--sh-xl); animation:popIn .3s ease-out; }
+@keyframes popIn { from{opacity:0;transform:scale(.9) translateY(14px)}to{opacity:1;transform:none} }
+.call-lang-badge { display:inline-flex; align-items:center; gap:5px; background:var(--c-green-soft); border:1px solid #bbf7d0; border-radius:var(--r-pill); padding:4px 12px; font-size:11px; color:var(--c-green2); font-weight:700; margin-bottom:var(--sp-3); }
+.call-pills { display:flex; gap:5px; flex-wrap:wrap; justify-content:center; margin-bottom:var(--sp-3); }
+.cpill { background:var(--c-paper); border:1px solid var(--c-border); border-radius:var(--r-pill); padding:3px 10px; font-size:11px; color:var(--c-mid); cursor:pointer; transition:all .14s; }
+.cpill.active { background:var(--c-dark); color:#fff; border-color:var(--c-dark); }
+.call-av-wrap { position:relative; width:108px; height:108px; margin:0 auto var(--sp-4); }
+.cring { position:absolute; border-radius:50%; border:2px solid rgba(34,197,94,.3); animation:rOut 1.6s ease-out infinite; }
+.cring:nth-child(1){inset:-14px;animation-delay:0s}.cring:nth-child(2){inset:-28px;animation-delay:.55s}
+.cring.gold{border-color:rgba(184,147,15,.35)}
+@keyframes rOut { 0%{opacity:.9;transform:scale(.88)}100%{opacity:0;transform:scale(1.12)} }
+.call-av { width:108px; height:108px; border-radius:50%; background:var(--c-dark); display:flex; align-items:center; justify-content:center; font-size:42px; position:relative; z-index:2; border:3px solid var(--c-dark); transition:border-color .3s,box-shadow .3s; }
+.call-av.listening { border-color:#f59e0b; box-shadow:0 0 0 4px rgba(245,158,11,.2); }
+.call-av.speaking { border-color:var(--c-green2); box-shadow:0 0 0 4px rgba(45,122,80,.2); }
+.call-name { font-family:'Playfair Display',serif; font-size:var(--text-xl); color:var(--c-dark); margin-bottom:2px; }
+.call-status { font-size:var(--text-sm); color:var(--c-muted); margin-bottom:3px; min-height:20px; }
+.call-timer { font-size:var(--text-xl); color:var(--c-dark); font-weight:700; letter-spacing:3px; margin-bottom:var(--sp-2); min-height:26px; font-variant-numeric:tabular-nums; }
+.wave { display:none; justify-content:center; align-items:center; gap:4px; height:22px; margin-bottom:var(--sp-2); }
+.wave.show { display:flex; }
+.wbar { width:4px; border-radius:2px; animation:wA .5s ease-in-out infinite alternate; }
+.wbar:nth-child(odd){background:var(--c-dark)}.wbar:nth-child(even){background:var(--c-mid);animation-delay:.15s}
+.wbar:nth-child(1){height:7px}.wbar:nth-child(2){height:17px}.wbar:nth-child(3){height:11px}.wbar:nth-child(4){height:21px}.wbar:nth-child(5){height:10px}.wbar:nth-child(6){height:17px}.wbar:nth-child(7){height:8px}
+@keyframes wA{from{transform:scaleY(.25)}to{transform:scaleY(1)}}
+.call-transcript { background:var(--c-paper); border:1px solid var(--c-border); border-radius:var(--r-md); padding:var(--sp-2) var(--sp-3); font-size:11.5px; color:var(--c-mid); line-height:var(--lh-loose); max-height:100px; overflow-y:auto; text-align:left; margin-bottom:var(--sp-5); }
+.call-controls { display:flex; justify-content:center; align-items:flex-end; gap:var(--sp-6); }
+.ctrl-btn { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; border:none; background:none; font-family:inherit; }
+.ctrl-icon { width:46px; height:46px; border-radius:50%; border:1.5px solid var(--c-border); background:var(--c-paper); display:flex; align-items:center; justify-content:center; font-size:18px; transition:all .14s; }
+.ctrl-btn:hover .ctrl-icon { background:var(--c-dark); border-color:var(--c-dark); }
+.ctrl-btn.muted .ctrl-icon { background:var(--c-red-soft); border-color:#fca5a5; }
+.ctrl-label { font-size:11px; color:var(--c-muted); }
+.end-btn { width:58px; height:58px; border-radius:50%; background:#ef4444; border:none; font-size:23px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 18px rgba(239,68,68,.35); transition:all .2s; }
+.end-btn:hover { background:#dc2626; transform:scale(1.06); }
+
+/* ─── BOOKING MODAL ─── */
+#bookingModal { display:none; position:fixed; inset:0; z-index:998; background:rgba(0,0,0,.5); align-items:flex-start; justify-content:center; padding:var(--sp-6); overflow-y:auto; }
+#bookingModal.show { display:flex; }
+.bk-card { background:var(--c-white); border-radius:var(--r-xl); width:100%; max-width:500px; margin:auto; overflow:hidden; box-shadow:var(--sh-xl); animation:popIn .3s ease-out; }
+.bk-head { background:var(--c-dark); color:#fff; padding:var(--sp-5) var(--sp-6); display:flex; align-items:flex-start; justify-content:space-between; }
+.bk-head h3 { font-family:'Playfair Display',serif; font-size:var(--text-2xl); letter-spacing:var(--ls-tight); margin-bottom:3px; }
+.bk-head p { font-size:var(--text-sm); color:rgba(255,255,255,0.45); }
+.bk-close { background:none; border:none; color:rgba(255,255,255,.4); font-size:22px; cursor:pointer; line-height:1; margin-top:-4px; }
+.bk-close:hover { color:#fff; }
+.bk-body { padding:var(--sp-6); }
+.bk-label { font-size:10px; font-weight:700; letter-spacing:var(--ls-wider); text-transform:uppercase; color:var(--c-faint); margin-bottom:var(--sp-3); display:flex; align-items:center; gap:var(--sp-2); }
+.bk-label::after { content:''; flex:1; height:1px; background:var(--c-border); }
+.bk-types { display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-3); margin-bottom:var(--sp-6); }
+.bkt { border:2px solid var(--c-border); border-radius:var(--r-lg); padding:var(--sp-4); cursor:pointer; transition:all .15s; background:var(--c-cream); }
+.bkt:hover { border-color:var(--c-dark); }
+.bkt.sel.online { border-color:var(--c-blue2); background:var(--c-blue-soft); }
+.bkt.sel.offline { border-color:var(--c-green2); background:var(--c-green-soft); }
+.bkt-icon { font-size:24px; margin-bottom:var(--sp-2); }
+.bkt-title { font-size:var(--text-base); font-weight:700; letter-spacing:var(--ls-tight); margin-bottom:2px; }
+.bkt-sub { font-size:11.5px; color:var(--c-muted); }
+.bkt-fee { font-size:var(--text-sm); font-weight:700; margin-top:var(--sp-2); }
+.bkt.sel.online .bkt-fee { color:var(--c-blue2); }
+.bkt.sel.offline .bkt-fee { color:var(--c-green2); }
+.bk-form { display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-3); margin-bottom:var(--sp-5); }
+.bk-group { display:flex; flex-direction:column; gap:3px; }
+.bk-group.full { grid-column:1/-1; }
+.bk-group label { font-size:10.5px; font-weight:700; color:var(--c-muted); text-transform:uppercase; letter-spacing:.5px; }
+.bk-group input,.bk-group select,.bk-group textarea { border:1px solid var(--c-border); border-radius:var(--r-sm); padding:var(--sp-2) var(--sp-3); font-size:var(--text-sm); font-family:inherit; outline:none; background:var(--c-paper); color:var(--c-dark); }
+.bk-group textarea { resize:vertical; min-height:64px; }
+.bk-group input:focus,.bk-group select:focus,.bk-group textarea:focus { border-color:var(--c-gold); }
+.slots-wrap { display:flex; flex-wrap:wrap; gap:var(--sp-2); margin-bottom:var(--sp-5); }
+.slot { padding:5px 12px; border:1px solid var(--c-border); border-radius:var(--r-sm); background:var(--c-white); font-size:var(--text-xs); font-weight:500; cursor:pointer; font-family:inherit; transition:all .13s; color:var(--c-mid); }
+.slot:hover { border-color:var(--c-dark); background:var(--c-dark); color:#fff; }
+.slot.booked { background:var(--c-paper); color:#bbb; border-color:var(--c-border); cursor:not-allowed; text-decoration:line-through; }
+.slot.sel { border-color:var(--c-gold); background:var(--c-gold-soft); color:var(--c-gold); font-weight:700; }
+.bk-summary { background:var(--c-paper); border:1px solid var(--c-border); border-radius:var(--r-md); padding:var(--sp-4); margin-bottom:var(--sp-5); }
+.bk-sum-row { display:flex; justify-content:space-between; font-size:var(--text-sm); color:var(--c-muted); margin-bottom:var(--sp-2); }
+.bk-sum-row.total { font-size:var(--text-lg); font-weight:700; color:var(--c-gold); margin-bottom:0; border-top:1px solid var(--c-border); padding-top:var(--sp-3); margin-top:var(--sp-1); }
+.bk-submit { width:100%; padding:13px; background:var(--c-dark); color:#fff; border:none; border-radius:var(--r-pill); font-size:var(--text-base); font-weight:700; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:var(--sp-2); transition:all .2s; }
+.bk-submit:hover { background:var(--c-void); transform:translateY(-1px); }
+.bk-submit:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+.trust-pills { display:flex; flex-wrap:wrap; gap:var(--sp-2); justify-content:center; margin-top:var(--sp-4); }
+.trust-pill { font-size:11px; color:var(--c-muted); display:flex; align-items:center; gap:3px; }
+
+/* Booking success */
+.bk-success { text-align:center; padding:var(--sp-10) var(--sp-6); }
+.bk-success-ring { width:68px; height:68px; background:var(--c-green-soft); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:30px; margin:0 auto var(--sp-4); }
+.bk-success h3 { font-family:'Playfair Display',serif; font-size:var(--text-2xl); letter-spacing:var(--ls-tight); margin-bottom:var(--sp-2); }
+.bk-success p { font-size:var(--text-sm); color:var(--c-muted); line-height:var(--lh-loose); margin-bottom:var(--sp-5); }
+.bk-ref { background:var(--c-paper); border:1px solid var(--c-border); border-radius:var(--r-md); padding:var(--sp-3); margin-bottom:var(--sp-3); text-align:center; }
+.bk-ref strong { display:block; font-size:10px; color:var(--c-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:3px; }
+.bk-ref span { font-family:monospace; font-size:var(--text-xl); font-weight:700; letter-spacing:2px; color:var(--c-dark); }
+.bk-suc-acts { display:flex; gap:var(--sp-2); }
+.bk-suc-btn { flex:1; padding:11px; border-radius:var(--r-pill); font-size:var(--text-sm); font-weight:700; cursor:pointer; font-family:inherit; border:none; transition:all .18s; }
+
+/* Toast */
+.toast { position:fixed; bottom:var(--sp-6); left:50%; transform:translateX(-50%); background:var(--c-dark); color:#fff; padding:10px var(--sp-5); border-radius:var(--r-pill); font-size:var(--text-sm); z-index:1100; animation:fadeSlideUp .3s ease-out; white-space:nowrap; pointer-events:none; box-shadow:var(--sh-lg); }
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px) {
+  .features-grid { grid-template-columns:repeat(2,1fr); }
+  .feat-card.col-4,.feat-card.col-6,.feat-card.col-8 { grid-column:span 1; }
+  .metrics-inner { grid-template-columns:repeat(2,1fr); }
+  .steps-grid { grid-template-columns:repeat(2,1fr); }
+  .steps-grid::before { display:none; }
+  .footer-top { grid-template-columns:1fr 1fr; }
+  .pricing-grid,.testi-grid { grid-template-columns:1fr; }
+}
+@media(max-width:640px) {
+  .nav-links { display:none; }
+  .hero h1 { font-size:36px; }
+  .hero-stats { gap:var(--sp-8); }
+  .hero-stat-div { display:none; }
+  .sidebar { display:none; }
+  .messages { padding:var(--sp-4); }
+  .input-bar { padding:var(--sp-2) var(--sp-4); }
+  .features-grid { grid-template-columns:1fr; }
+  .call-card,.bk-card { width:calc(100vw - 32px); }
+  .bk-types,.bk-form { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════ LANDING ══════════════════════════ -->
+<div id="landing">
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="nav-icon">⚖</div>
+    <div class="nav-brand">
+      <span class="nav-name">VakilAI</span>
+      <span class="nav-tagline">Indian Legal Advisor</span>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="#features">Features</a>
+    <a class="nav-link" href="#how">How It Works</a>
+    <a class="nav-link" href="#pricing">Pricing</a>
+    <a class="nav-link" href="#languages">Languages</a>
+  </div>
+  <div class="nav-actions">
+    <button class="nav-btn-ghost" onclick="openApp()">Open Chat</button>
+   <button class="cta-secondary" onclick="window.location.href='book.html'">
+  🧑‍⚖️ Book an Advocate
+</button>  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">
+      <span class="hero-dot"></span>
+      India's AI Legal Advisor · 9+ Languages · Free to Use
+    </div>
+    <h1>Legal Guidance<br>for Every <em>Indian</em></h1>
+    <p class="hero-sub">Ask about IPC, Consumer Rights, Property Law, Divorce, RTI, Cyber Fraud — in Hindi, Kannada, Tamil, or English. Instant answers, no fees.</p>
+    <div class="hero-ctas">
+      <button class="cta-primary" onclick="openApp()">⚖️ Ask VakilAI Free</button>
+    <button class="cta-secondary" onclick="window.location.href='book.html'">
+  🧑‍⚖️ Book an Advocate
+</button>    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-n">50K+</div><div class="hero-stat-l">Queries Answered</div></div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat"><div class="hero-stat-n">9+</div><div class="hero-stat-l">Indian Languages</div></div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat"><div class="hero-stat-n">98%</div><div class="hero-stat-l">Accuracy Rate</div></div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat"><div class="hero-stat-n">Free</div><div class="hero-stat-l">AI Advisor</div></div>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-kicker">Features</div>
+      <h2 class="section-title">Everything You Need<br>for Legal Help</h2>
+      <p class="section-desc">From instant AI answers to scheduled advocate sessions — one platform for all your legal needs.</p>
+    </div>
+    <div class="features-grid">
+      <!-- Row 1 -->
+      <div class="feat-card col-8 tall featured-card" onclick="openApp()">
+        <div class="feat-arrow">→</div>
+        <div>
+          <div class="feat-chip chip-dark">Most Used</div>
+          <div class="feat-icon-wrap icon-dark">💬</div>
+          <h3>AI Legal Chat</h3>
+          <p>Ask any question — rights on arrest, consumer fraud, property disputes, divorce. Get answers with exact IPC section citations and step-by-step action plans.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:24px;">
+          <span style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);font-size:11px;padding:4px 10px;border-radius:99px;font-weight:600;">IPC Sections</span>
+          <span style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);font-size:11px;padding:4px 10px;border-radius:99px;font-weight:600;">Time Limits</span>
+          <span style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);font-size:11px;padding:4px 10px;border-radius:99px;font-weight:600;">Action Steps</span>
+        </div>
+        <div class="feat-deco" style="background:var(--c-gold);"></div>
+      </div>
+      <div class="feat-card col-4 fc-blue" onclick="openApp()">
+        <div class="feat-arrow">→</div>
+        <div class="feat-chip chip-blue">AI Analysis</div>
+        <div class="feat-icon-wrap icon-blue">📄</div>
+        <h3>Document Analysis</h3>
+        <p>Upload contracts, rent agreements, FIRs. AI reviews for red flags and illegal clauses.</p>
+      </div>
+      <!-- Row 2 -->
+      <div class="feat-card col-4 fc-gold" onclick="openApp()">
+        <div class="feat-arrow">→</div>
+        <div class="feat-chip chip-gold">Generator</div>
+        <div class="feat-icon-wrap icon-gold">📝</div>
+        <h3>Legal Document Generator</h3>
+        <p>RTI, Consumer Complaints, Legal Notices, Bail Applications — generated in minutes.</p>
+      </div>
+      <div class="feat-card col-4 fc-green" onclick="openApp()">
+        <div class="feat-arrow">→</div>
+        <div class="feat-chip chip-green">AI Predictor</div>
+        <div class="feat-icon-wrap icon-green">⚖️</div>
+        <h3>Case Outcome Predictor</h3>
+        <p>Describe your case. Get win probability, applicable laws, and recommended actions.</p>
+      </div>
+      <div class="feat-card col-4 fc-red" onclick="openBookingModal()">
+        <div class="feat-arrow">→</div>
+        <div class="feat-chip chip-red">From ₹299</div>
+        <div class="feat-icon-wrap icon-red">🧑‍⚖️</div>
+        <h3>Book an Advocate</h3>
+        <p>Verified Indian advocates. Online or in-person. Video call or office visit.</p>
+      </div>
+      <!-- Row 3 -->
+      <div class="feat-card col-6" onclick="openApp()">
+        <div class="feat-arrow">→</div>
+        <div class="feat-icon-wrap icon-blue">🎤</div>
+        <h3>Voice Legal Call</h3>
+        <p>Talk to VakilAI like a real phone call. Speak your question, hear the answer in your language.</p>
+      </div>
+      <div class="feat-card col-6" onclick="openApp()">
+        <div class="feat-arrow">→</div>
+        <div class="feat-icon-wrap icon-gold">🌐</div>
+        <h3>9 Indian Languages</h3>
+        <p>Hindi, Kannada, Tamil, Telugu, Marathi, Bengali, Gujarati, Malayalam, English — full support in every language.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METRICS BAND -->
+<div class="metrics-band">
+  <div class="metrics-inner">
+    <div class="metric"><div class="metric-n">50K+</div><div class="metric-l">Questions Answered</div></div>
+    <div class="metric"><div class="metric-n">9+</div><div class="metric-l">Indian Languages</div></div>
+    <div class="metric"><div class="metric-n">98%</div><div class="metric-l">Accuracy Rate</div></div>
+    <div class="metric"><div class="metric-n">Free</div><div class="metric-l">Always for AI Chat</div></div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div style="max-width:var(--max-w);margin:0 auto;">
+    <div class="section-header" style="margin-bottom:var(--sp-10);">
+      <div class="section-kicker">How It Works</div>
+      <h2 class="section-title">Legal Clarity in Minutes</h2>
+    </div>
+    <div class="steps-grid">
+      <div class="step"><div class="step-num">01</div><h3>Ask in Any Language</h3><p>Type or speak your legal question in Hindi, Kannada, Tamil, or any supported Indian language.</p></div>
+      <div class="step"><div class="step-num">02</div><h3>AI Cross-References Law</h3><p>Gemini AI analyses IPC, CrPC, Consumer Protection Act, RERA, and 50+ Indian statutes instantly.</p></div>
+      <div class="step"><div class="step-num">03</div><h3>Get Actionable Guidance</h3><p>Receive specific steps, section citations, time limits, and emergency helpline numbers.</p></div>
+      <div class="step"><div class="step-num">04</div><h3>Book Real Help if Needed</h3><p>Schedule a paid consultation with a licensed advocate for complex matters.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- LANGUAGES -->
+<section class="langs-section" id="languages">
+  <div class="langs-inner">
+    <div class="langs-top">
+      <div>
+        <div class="section-kicker">Multilingual</div>
+        <h2 class="section-title" style="font-size:var(--text-2xl);">Available in 9 Indian Languages</h2>
+      </div>
+    </div>
+    <div class="langs-pills">
+      <div class="lang-pill-item" onclick="openApp()">🇮🇳 English <span class="lp-native">English</span></div>
+      <div class="lang-pill-item" onclick="openApp()">🇮🇳 Hindi <span class="lp-native">हिन्दी</span></div>
+      <div class="lang-pill-item" onclick="openApp()">🇮🇳 Kannada <span class="lp-native">ಕನ್ನಡ</span></div>
+      <div class="lang-pill-item" onclick="openApp()">🇮🇳 Tamil <span class="lp-native">தமிழ்</span></div>
+      <div class="lang-pill-item" onclick="openApp()">🇮🇳 Telugu <span class="lp-native">తెలుగు</span></div>
+      <div class="lang-pill-item" onclick="openApp()">🇮🇳 Marathi <span class="lp-native">मराठी</span></div>
+      <div class="lang-pill-item" onclick="openApp()">🇮🇳 Bengali <span class="lp-native">বাংলা</span></div>
+      <div class="lang-pill-item" onclick="openApp()">🇮🇳 Gujarati <span class="lp-native">ગુજરાતી</span></div>
+      <div class="lang-pill-item" onclick="openApp()">🇮🇳 Malayalam <span class="lp-native">മലയാളം</span></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- TESTIMONIALS -->
+<section class="testi-section">
+  <div style="max-width:var(--max-w);margin:0 auto;">
+    <div class="section-header">
+      <div class="section-kicker">Reviews</div>
+      <h2 class="section-title">Trusted Across India</h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote">"My landlord refused to return ₹60,000 deposit. VakilAI explained Section 106 TPA and helped me draft a legal notice. Got my money back in 12 days!"</div>
+        <div class="testi-author"><div class="testi-av">R</div><div><div class="testi-name">Rajesh M.</div><div class="testi-loc">Bengaluru, Karnataka</div></div></div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote">"ऑनलाइन ठगी का शिकार हुआ था। VakilAI ने हिंदी में पूरा समझाया और साइबर क्राइम FIR के steps बताए। बहुत helpful!"</div>
+        <div class="testi-author"><div class="testi-av">A</div><div><div class="testi-name">Amit K.</div><div class="testi-loc">Lucknow, UP</div></div></div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote">"ಕನ್ನಡದಲ್ಲಿ ಆಸ್ತಿ ವಿವಾದದ ಬಗ್ಗೆ ಕೇಳಿದೆ. ತಕ್ಷಣ ಸರಿಯಾದ ಕಾನೂನು ಮಾಹಿತಿ ನೀಡಿತು. ನಮ್ಮ ಭಾಷೆಯಲ್ಲಿ ಕಾನೂನು ಸಹಾಯ ಅದ್ಭುತ!"</div>
+        <div class="testi-author"><div class="testi-av">S</div><div><div class="testi-name">Suresh B.</div><div class="testi-loc">Mysuru, Karnataka</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand-name">VakilAI</div>
+        <div class="footer-brand-tag">Indian Legal Advisor</div>
+        <p class="footer-brand-desc">Built by four law-tech students to make Indian legal guidance accessible, fast, and multilingual for every citizen.</p>
+      </div>
+      <div>
+        <div class="footer-col-head">Features</div>
+        <ul class="footer-links">
+          <li><a href="#" onclick="openApp()">AI Legal Chat</a></li>
+          <li><a href="#" onclick="openApp()">Document Analysis</a></li>
+          <li><a href="#" onclick="openApp()">Doc Generator</a></li>
+          <li><a href="#" onclick="openApp()">Case Predictor</a></li>
+          <li><a href="#" onclick="openApp()">Voice Call</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-head">Consult</div>
+        <ul class="footer-links">
+          <li><a href="#" onclick="openBookingModal()">Online (₹299)</a></li>
+          <li><a href="#" onclick="openBookingModal()">In-Person (₹499)</a></li>
+          <li><a href="#pricing">View Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-head">Helplines</div>
+        <ul class="footer-links">
+          <li><a href="tel:15100">Free Legal Aid: 15100</a></li>
+          <li><a href="tel:100">Police: 100</a></li>
+          <li><a href="tel:1091">Women: 1091</a></li>
+          <li><a href="tel:1930">Cyber: 1930</a></li>
+          <li><a href="tel:112">Emergency: 112</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2025 VakilAI · General legal guidance only · Not a substitute for licensed advice</p>
+      <div class="footer-badges">
+        <span class="footer-badge">🔒 Secure</span>
+        <span class="footer-badge">🇮🇳 Made in India</span>
+        <span class="footer-badge">AI Powered</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /landing -->
+
+<!-- ══════════════════════════ APP ══════════════════════════ -->
+<div id="app">
+
+<div id="app-header">
+  <div class="app-logo">
+    <div class="app-logo-icon">⚖</div>
+    <div>
+      <div class="app-logo-name">VakilAI</div>
+      <div class="app-logo-sub">Indian Legal Advisor</div>
+    </div>
+  </div>
+  <div class="app-header-r">
+    <div class="lang-wrap">
+      <button class="ahb ahb-ghost" onclick="toggleLD()">🌐 <span id="clLabel">English</span> ▾</button>
+      <div class="lang-dd" id="langDD">
+        <div class="lang-opt active" onclick="setLang('en-IN','English','en')" id="opt-en"><span>🇮🇳</span><span>English</span><span class="l-nat">English</span><span class="l-ck">✓</span></div>
+        <div class="lang-opt" onclick="setLang('hi-IN','Hindi','hi')" id="opt-hi"><span>🇮🇳</span><span>Hindi</span><span class="l-nat">हिन्दी</span><span class="l-ck">✓</span></div>
+        <div class="lang-opt" onclick="setLang('kn-IN','Kannada','kn')" id="opt-kn"><span>🇮🇳</span><span>Kannada</span><span class="l-nat">ಕನ್ನಡ</span><span class="l-ck">✓</span></div>
+        <div class="lang-opt" onclick="setLang('ta-IN','Tamil','ta')" id="opt-ta"><span>🇮🇳</span><span>Tamil</span><span class="l-nat">தமிழ்</span><span class="l-ck">✓</span></div>
+        <div class="lang-opt" onclick="setLang('te-IN','Telugu','te')" id="opt-te"><span>🇮🇳</span><span>Telugu</span><span class="l-nat">తెలుగు</span><span class="l-ck">✓</span></div>
+        <div class="lang-opt" onclick="setLang('mr-IN','Marathi','mr')" id="opt-mr"><span>🇮🇳</span><span>Marathi</span><span class="l-nat">मराठी</span><span class="l-ck">✓</span></div>
+        <div class="lang-opt" onclick="setLang('bn-IN','Bengali','bn')" id="opt-bn"><span>🇮🇳</span><span>Bengali</span><span class="l-nat">বাংলা</span><span class="l-ck">✓</span></div>
+        <div class="lang-opt" onclick="setLang('gu-IN','Gujarati','gu')" id="opt-gu"><span>🇮🇳</span><span>Gujarati</span><span class="l-nat">ગુજરાતી</span><span class="l-ck">✓</span></div>
+        <div class="lang-opt" onclick="setLang('ml-IN','Malayalam','ml')" id="opt-ml"><span>🇮🇳</span><span>Malayalam</span><span class="l-nat">മലയാളം</span><span class="l-ck">✓</span></div>
+      </div>
+    </div>
+    <button class="ahb ahb-gold" onclick="openBookingModal()">🧑‍⚖️ Consult</button>
+    <button class="ahb ahb-blue" onclick="openPanel('map')">📍 Find Lawyer</button>
+    <button class="ahb ahb-green" onclick="startCall()">📞 Call AI</button>
+    <button class="ahb ahb-ghost" onclick="backToLanding()" style="font-size:11px;">← Home</button>
+  </div>
+</div>
+
+<div class="app-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">AI Tools</div>
+      <button class="sb-btn" onclick="openPanel('doc')" id="sb-doc"><span class="sb-icon">📄</span>Analyze Document</button>
+      <button class="sb-btn" onclick="openPanel('gen')" id="sb-gen"><span class="sb-icon">📝</span>Generate Document</button>
+      <button class="sb-btn" onclick="openPanel('pred')" id="sb-pred"><span class="sb-icon">⚖️</span>Case Predictor</button>
+      <button class="sb-btn" onclick="openPanel('map')" id="sb-map"><span class="sb-icon">📍</span>Find Lawyer</button>
+      <button class="sb-consult" onclick="openBookingModal()">🧑‍⚖️ Book Consultation</button>
+    </div>
+    <div class="sb-section" style="flex:1;overflow-y:auto;">
+      <div class="sb-label">Quick Questions</div>
+      <button class="qk-btn" onclick="ask(T.q1)">🚔 <span id="q1t"></span></button>
+      <button class="qk-btn" onclick="ask(T.q2)">🛒 <span id="q2t"></span></button>
+      <button class="qk-btn" onclick="ask(T.q3)">🏠 <span id="q3t"></span></button>
+      <button class="qk-btn" onclick="ask(T.q4)">👨‍👩‍👧 <span id="q4t"></span></button>
+      <button class="qk-btn" onclick="ask(T.q5)">💻 <span id="q5t"></span></button>
+      <button class="qk-btn" onclick="ask(T.q6)">💼 <span id="q6t"></span></button>
+      <button class="qk-btn" onclick="ask(T.q7)">📋 <span id="q7t"></span></button>
+    </div>
+    <div class="sb-disc"><strong>⚠ Legal Disclaimer</strong>VakilAI provides general guidance only. Consult a licensed advocate for official legal advice.</div>
+  </aside>
+
+  <!-- CHAT -->
+  <div class="chat-area">
+    <div class="messages" id="msgs">
+      <div class="welcome" id="welcome">
+        <div class="wlc-icon">⚖️</div>
+        <div class="wlc-h" id="wTitle">Namaste! I'm VakilAI</div>
+        <div class="wlc-p" id="wDesc">Your AI Indian Legal Advisor. Ask anything in your language.</div>
+        <div class="wlc-pills">
+          <span class="wlc-pill" onclick="ask(T.c1)" id="c1p"></span>
+          <span class="wlc-pill" onclick="ask(T.c2)" id="c2p"></span>
+          <span class="wlc-pill" onclick="ask(T.c3)" id="c3p"></span>
+          <span class="wlc-pill" onclick="ask(T.c4)" id="c4p"></span>
+          <span class="wlc-pill p-blue" onclick="openPanel('doc')">📄 Analyze Document</span>
+          <span class="wlc-pill p-green" onclick="openPanel('pred')">⚖️ Predict Case</span>
+          <span class="wlc-pill p-gold" onclick="openBookingModal()">🧑‍⚖️ Book Advocate</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="lang-bar">🌐 Responding in: <strong id="lBarTxt">English (en-IN)</strong> &nbsp;·&nbsp; AI replies in your language</div>
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-lbl">🔍 <span id="progressLbl">Analyzing...</span></div>
+      <div class="progress-track"><div class="progress-fill"></div></div>
+    </div>
+
+    <!-- PANELS -->
+    <div class="panel-stack">
+
+      <div class="panel p-doc" id="panel-doc">
+        <div class="panel-head">
+          <div class="panel-title" style="color:var(--c-blue2)">📄 Document Analysis</div>
+          <button class="panel-close" onclick="closePanel('doc')">✕</button>
+        </div>
+        <div class="file-prev" id="filePrev">
+          <span id="fpIcon" style="font-size:22px">📄</span>
+          <div class="fp-info"><div class="fp-name" id="fpName"></div><div class="fp-sz" id="fpSz"></div></div>
+          <button class="fp-rm" onclick="clearFile()">✕</button>
+        </div>
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fi').click()" ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event)">
+          <div class="dz-icon">📂</div>
+          <div class="dz-text"><b>Click to upload</b> or drag & drop a legal document</div>
+          <div class="dz-fmt">PDF, PNG, JPG, WEBP · Max 10 MB</div>
+        </div>
+        <input type="file" id="fi" accept=".pdf,.png,.jpg,.jpeg,.webp" style="display:none" onchange="fileChosen(event)">
+        <div class="doc-q-row">
+          <input class="doc-q-inp" id="docQ" placeholder="Optional: Ask something specific about this document...">
+          <button class="doc-analyze-btn" id="analyzeBtn" onclick="analyzeDoc()" disabled>🔍 Analyze</button>
+        </div>
+      </div>
+
+      <div class="panel p-gen" id="panel-gen">
+        <div class="panel-head">
+          <div class="panel-title" style="color:var(--c-gold)">📝 Legal Document Generator</div>
+          <button class="panel-close" onclick="closePanel('gen')">✕</button>
+        </div>
+        <div class="gen-types">
+          <button class="gen-type-btn sel" onclick="selDocType('rti',this)">📋 RTI Application</button>
+          <button class="gen-type-btn" onclick="selDocType('consumer_complaint',this)">🛒 Consumer Complaint</button>
+          <button class="gen-type-btn" onclick="selDocType('legal_notice',this)">⚠️ Legal Notice</button>
+          <button class="gen-type-btn" onclick="selDocType('rent_agreement',this)">🏠 Rent Agreement</button>
+          <button class="gen-type-btn" onclick="selDocType('bail_application',this)">🔓 Bail Application</button>
+        </div>
+        <div class="gen-fields" id="genFields"></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="gen-go-btn" id="genBtn" onclick="generateDoc()">✨ Generate</button>
+          <span style="font-size:12px;color:var(--c-muted)" id="genStatus"></span>
+        </div>
+        <div class="doc-out" id="docOutput"></div>
+        <div class="doc-out-acts" id="docOutActions">
+          <button class="out-btn out-btn-green" onclick="downloadDoc()">⬇️ Download</button>
+          <button class="out-btn out-btn-wa" onclick="shareDocWA()">📲 WhatsApp</button>
+          <button class="out-btn out-btn-blue" onclick="addDocToChat()">💬 Add to Chat</button>
+        </div>
+      </div>
+
+      <div class="panel p-pred" id="panel-pred">
+        <div class="panel-head">
+          <div class="panel-title" style="color:var(--c-green2)">⚖️ Case Outcome Predictor</div>
+          <button class="panel-close" onclick="closePanel('pred')">✕</button>
+        </div>
+        <textarea class="pred-ta" id="predFacts" placeholder="Describe your case: What happened? When? Who is involved? What do you want? (e.g. 'Paid ₹25,000 for a laptop in June 2024. Stopped working in 2 months. Company refuses to replace despite warranty.')"></textarea>
+        <button class="pred-go" id="predBtn" onclick="predictCase()">🔮 Predict Outcome</button>
+        <div class="pred-result" id="predResult"></div>
+      </div>
+
+      <div class="panel p-map" id="panel-map">
+        <div class="panel-head">
+          <div class="panel-title" style="color:var(--c-red)">📍 Find Advocate Near You</div>
+          <button class="panel-close" onclick="closePanel('map')">✕</button>
+        </div>
+        <div class="map-row">
+          <input class="map-inp" id="mapCity" placeholder="Enter city (e.g. Bengaluru, Delhi, Mumbai)">
+          <button class="map-loc-btn" onclick="useMyLocation()">📍 My Location</button>
+          <button class="map-srch-btn" onclick="searchLawyers()">Search</button>
+        </div>
+        <div id="lawyerList"><div class="map-status">Enter your city or click "My Location" to find advocates near you.</div></div>
+      </div>
+
+    </div>
+
+    <div class="voice-hint">📄 Doc · ⚖️ Predict · 📍 Lawyers · 🎤 Voice · 📞 Call · 🧑‍⚖️ Consult · ➤ Send</div>
+    <div class="input-bar">
+      <textarea id="ti" placeholder="Type your legal question in any language..." rows="1" onkeydown="onKey(event)" oninput="resize(this)"></textarea>
+      <button class="ib-btn ib-doc" id="docIbBtn" onclick="openPanel('doc')" title="Upload Document">📄</button>
+      <button class="ib-btn" id="micBtn" onclick="toggleMic()" title="Voice Input">🎤</button>
+      <button class="ib-btn ib-send" id="sendBtn" onclick="send()">➤</button>
+    </div>
+  </div>
+
+</div>
+</div><!-- /app -->
+
+<!-- CALL MODAL -->
+<div id="callModal">
+  <div class="call-card">
+    <div class="call-lang-badge" id="cLangBadge">🌐 English</div>
+    <div class="call-pills">
+      <span class="cpill active" onclick="switchCL('en-IN','English','en')" id="cp-en">EN</span>
+      <span class="cpill" onclick="switchCL('hi-IN','Hindi','hi')" id="cp-hi">हि</span>
+      <span class="cpill" onclick="switchCL('kn-IN','Kannada','kn')" id="cp-kn">ಕ</span>
+      <span class="cpill" onclick="switchCL('ta-IN','Tamil','ta')" id="cp-ta">த</span>
+      <span class="cpill" onclick="switchCL('te-IN','Telugu','te')" id="cp-te">తె</span>
+      <span class="cpill" onclick="switchCL('mr-IN','Marathi','mr')" id="cp-mr">म</span>
+      <span class="cpill" onclick="switchCL('bn-IN','Bengali','bn')" id="cp-bn">ব</span>
+      <span class="cpill" onclick="switchCL('ml-IN','Malayalam','ml')" id="cp-ml">മ</span>
+    </div>
+    <div class="call-av-wrap">
+      <div class="cring" id="cr1"></div><div class="cring" id="cr2"></div>
+      <div class="call-av" id="callAv">⚖️</div>
+    </div>
+    <div class="call-name">VakilAI</div>
+    <div class="call-status" id="cStatus">Calling...</div>
+    <div class="call-timer" id="cTimer"></div>
+    <div class="wave" id="cWave"><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div></div>
+    <div class="call-transcript" id="cTranscript">Connecting...</div>
+    <div class="call-controls">
+      <button class="ctrl-btn" id="muteBtn" onclick="toggleMute()"><div class="ctrl-icon">🎤</div><span class="ctrl-label">Mute</span></button>
+      <button class="end-btn" onclick="endCall()">📵</button>
+      <button class="ctrl-btn" id="spkBtn" onclick="toggleSpk()"><div class="ctrl-icon">🔊</div><span class="ctrl-label">Speaker</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div id="bookingModal">
+  <div class="bk-card">
+    <div id="bkStep1">
+      <div class="bk-head">
+        <div><h3>Book a Consultation</h3><p>Online or In-Person · Verified Indian Advocates</p></div>
+        <button class="bk-close" onclick="closeBookingModal()">✕</button>
+      </div>
+      <div class="bk-body">
+        <div class="bk-label">Consultation Type</div>
+        <div class="bk-types">
+          <div class="bkt online sel" id="bkt-online" onclick="selBkType('online')">
+            <div class="bkt-icon">💻</div>
+            <div class="bkt-title">Online</div>
+            <div class="bkt-sub">Video / Phone Call</div>
+            <div class="bkt-fee" style="color:var(--c-blue2)">From ₹299</div>
+          </div>
+          <div class="bkt offline" id="bkt-offline" onclick="selBkType('offline')">
+            <div class="bkt-icon">🏛️</div>
+            <div class="bkt-title">In-Person</div>
+            <div class="bkt-sub">Office Visit</div>
+            <div class="bkt-fee" style="color:var(--c-green2)">From ₹499</div>
+          </div>
+        </div>
+        <div class="bk-label">Your Details</div>
+        <div class="bk-form">
+          <div class="bk-group"><label>Full Name *</label><input type="text" id="bkName" placeholder="Rajesh Kumar" oninput="valBk()"></div>
+          <div class="bk-group"><label>Mobile *</label><input type="tel" id="bkPhone" placeholder="98XXXXXXXX" maxlength="10" oninput="valBk()"></div>
+          <div class="bk-group"><label>Area of Law</label>
+            <select id="bkArea"><option>Criminal Law</option><option>Consumer Rights</option><option>Property / RERA</option><option>Family / Divorce</option><option>Cyber Law</option><option>Labour Law</option><option>RTI / PIL</option><option>Other</option></select>
+          </div>
+          <div class="bk-group"><label>Duration</label>
+            <select id="bkDur" onchange="updateBkSummary()"><option value="30">30 minutes</option><option value="60" selected>1 hour</option><option value="90">90 minutes</option></select>
+          </div>
+          <div class="bk-group"><label>Preferred Date</label><input type="date" id="bkDate" oninput="loadBkSlots()"></div>
+          <div class="bk-group"><label>Language</label>
+            <select id="bkLang"><option>English</option><option>Hindi</option><option>Kannada</option><option>Tamil</option><option>Telugu</option><option>Marathi</option></select>
+          </div>
+          <div class="bk-group full"><label>Brief Issue Description *</label><textarea id="bkIssue" placeholder="Describe your legal issue in 2-3 lines..." oninput="valBk()"></textarea></div>
+        </div>
+        <div class="bk-label">Available Time Slots</div>
+        <div class="slots-wrap" id="bkSlots"><span style="font-size:13px;color:var(--c-muted)">Select a date to see available slots.</span></div>
+        <div class="bk-label">Order Summary</div>
+        <div class="bk-summary">
+          <div class="bk-sum-row"><span>Type</span><span id="bkSumType">Online Consultation</span></div>
+          <div class="bk-sum-row"><span>Duration</span><span id="bkSumDur">1 hour</span></div>
+          <div class="bk-sum-row"><span>Base Fee</span><span id="bkSumBase">₹499</span></div>
+          <div class="bk-sum-row"><span>Platform Fee</span><span>₹29</span></div>
+          <div class="bk-sum-row total"><span>Total</span><span id="bkSumTotal">₹528</span></div>
+        </div>
+        <button class="bk-submit" id="bkSubmitBtn" onclick="confirmBooking()" disabled>🔒 Confirm Booking <span id="bkTotalDisplay"></span></button>
+        <div class="trust-pills">
+          <span class="trust-pill">🔒 SSL Secured</span>
+          <span class="trust-pill">✅ Verified Advocates</span>
+          <span class="trust-pill">↩️ Full Refund Policy</span>
+          <span class="trust-pill">📄 GST Invoice</span>
+        </div>
+      </div>
+    </div>
+    <div id="bkStep2" style="display:none">
+      <div class="bk-success">
+        <div class="bk-success-ring">✅</div>
+        <h3>Booking Confirmed!</h3>
+        <p>Your consultation has been booked. You'll receive a WhatsApp confirmation within 15 minutes.</p>
+        <div class="bk-ref"><strong>Booking Reference</strong><span id="bkRefNum">VK-XXXXXX</span></div>
+        <div class="bk-ref"><strong>Appointment</strong><span id="bkApptDetails" style="font-family:inherit;font-size:13px;font-weight:600;letter-spacing:0">—</span></div>
+        <div class="bk-suc-acts">
+          <button class="bk-suc-btn" style="background:#25D366;color:#fff" onclick="bkShareWA()">📲 WhatsApp</button>
+          <button class="bk-suc-btn" style="background:var(--c-dark);color:#fff" onclick="closeBookingModal()">← Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════ LANGUAGE DATA ══════════ */
+const LANGS={en:{code:'en-IN',name:'English',g:'English',wTitle:"Namaste! I'm VakilAI",wDesc:"Your AI Indian Legal Advisor. Ask anything in your language.",ph:"Type your legal question in any language...",q1:"Rights on Arrest",q2:"Consumer Complaint",q3:"Property Law",q4:"Divorce Law",q5:"Cyber Fraud",q6:"Labour Rights",q7:"RTI Act",c1:"IPC Section 420",c2:"How does bail work?",c3:"What is RERA?",c4:"Consumer Rights",greeting:"Namaste! You have reached VakilAI — your personal Indian Legal Advisor. How can I help you today?",lisHint:"🎤 Listening...",spkHint:"🔊 Speaking..."},hi:{code:'hi-IN',name:'Hindi',g:'Hindi',wTitle:"नमस्ते! मैं VakilAI हूँ",wDesc:"आपका AI कानूनी सलाहकार। हिंदी में पूछें।",ph:"हिंदी में प्रश्न लिखें...",q1:"गिरफ्तारी पर अधिकार",q2:"उपभोक्ता शिकायत",q3:"संपत्ति कानून",q4:"तलाक कानून",q5:"साइबर धोखाधड़ी",q6:"श्रम अधिकार",q7:"RTI क्या है?",c1:"IPC धारा 420",c2:"जमानत कैसे मिलती है?",c3:"RERA क्या है?",c4:"उपभोक्ता अधिकार",greeting:"नमस्ते! VakilAI से जुड़े हैं। क्या समस्या है?",lisHint:"🎤 बोलें...",spkHint:"🔊 बोल रहा है..."},kn:{code:'kn-IN',name:'Kannada',g:'Kannada',wTitle:"ನಮಸ್ಕಾರ! ನಾನು VakilAI",wDesc:"ನಿಮ್ಮ AI ಕಾನೂನು ಸಲಹೆಗಾರ.",ph:"ಕನ್ನಡದಲ್ಲಿ ಪ್ರಶ್ನೆ ಟೈಪ್ ಮಾಡಿ...",q1:"ಬಂಧನದಲ್ಲಿ ಹಕ್ಕುಗಳು",q2:"ಗ್ರಾಹಕ ದೂರು",q3:"ಆಸ್ತಿ ಕಾನೂನು",q4:"ವಿಚ್ಛೇದನ ಕಾನೂನು",q5:"ಸೈಬರ್ ಮೋಸ",q6:"ಕಾರ್ಮಿಕ ಹಕ್ಕುಗಳು",q7:"RTI ಏನು?",c1:"IPC ಸೆಕ್ಷನ್ 420",c2:"ಜಾಮೀನು ಹೇಗೆ?",c3:"RERA ಏನು?",c4:"ಗ್ರಾಹಕ ಹಕ್ಕುಗಳು",greeting:"ನಮಸ್ಕಾರ! ನಿಮ್ಮ ಸಮಸ್ಯೆ ಏನು?",lisHint:"🎤 ಮಾತಾಡಿ...",spkHint:"🔊 ಮಾತಾಡುತ್ತಿದ್ದಾರೆ..."},ta:{code:'ta-IN',name:'Tamil',g:'Tamil',wTitle:"வணக்கம்! நான் VakilAI",wDesc:"உங்கள் AI சட்ட ஆலோசகர்.",ph:"தமிழில் கேள்வி டைப் செய்யுங்கள்...",q1:"கைது உரிமைகள்",q2:"நுகர்வோர் புகார்",q3:"சொத்து சட்டம்",q4:"விவாகரத்து சட்டம்",q5:"சைபர் மோசடி",q6:"தொழிலாளர் உரிமைகள்",q7:"RTI என்றால்?",c1:"IPC பிரிவு 420",c2:"ஜாமீன் எப்படி?",c3:"RERA என்றால்?",c4:"நுகர்வோர் உரிமைகள்",greeting:"வணக்கம்! உங்கள் பிரச்சனை என்ன?",lisHint:"🎤 பேசுங்கள்...",spkHint:"🔊 பேசுகிறார்..."},te:{code:'te-IN',name:'Telugu',g:'Telugu',wTitle:"నమస్కారం! నేను VakilAI",wDesc:"మీ AI న్యాయ సలహాదారు.",ph:"తెలుగులో ప్రశ్న టైప్ చేయండి...",q1:"అరెస్టులో హక్కులు",q2:"వినియోగదారు ఫిర్యాదు",q3:"ఆస్తి చట్టం",q4:"విడాకుల చట్టం",q5:"సైబర్ మోసం",q6:"కార్మిక హక్కులు",q7:"RTI అంటే?",c1:"IPC సెక్షన్ 420",c2:"బెయిల్ ఎలా?",c3:"RERA అంటే?",c4:"వినియోగదారు హక్కులు",greeting:"నమస్కారం! మీ సమస్య ఏమిటి?",lisHint:"🎤 మాట్లాడండి...",spkHint:"🔊 మాట్లాడుతోంది..."},mr:{code:'mr-IN',name:'Marathi',g:'Marathi',wTitle:"नमस्कार! मी VakilAI आहे",wDesc:"तुमचा AI कायदेशीर सल्लागार.",ph:"मराठीत प्रश्न टाइप करा...",q1:"अटकेवेळी अधिकार",q2:"ग्राहक तक्रार",q3:"मालमत्ता कायदा",q4:"घटस्फोट कायदा",q5:"सायबर फसवणूक",q6:"कामगार हक्क",q7:"RTI म्हणजे?",c1:"IPC कलम 420",c2:"जामीन कसा?",c3:"RERA म्हणजे?",c4:"ग्राहक हक्क",greeting:"नमस्कार! काय समस्या आहे?",lisHint:"🎤 बोला...",spkHint:"🔊 बोलत आहे..."},bn:{code:'bn-IN',name:'Bengali',g:'Bengali',wTitle:"নমস্কার! আমি VakilAI",wDesc:"আপনার AI আইনি উপদেষ্টা।",ph:"বাংলায় প্রশ্ন টাইপ করুন...",q1:"গ্রেফতারে অধিকার",q2:"ভোক্তা অভিযোগ",q3:"সম্পত্তি আইন",q4:"বিবাহবিচ্ছেদ আইন",q5:"সাইবার জালিয়াতি",q6:"শ্রম অধিকার",q7:"RTI কী?",c1:"IPC ধারা 420",c2:"জামিন কীভাবে?",c3:"RERA কী?",c4:"ভোক্তা অধিকার",greeting:"নমস্কার! আপনার সমস্যা কী?",lisHint:"🎤 বলুন...",spkHint:"🔊 বলছে..."},gu:{code:'gu-IN',name:'Gujarati',g:'Gujarati',wTitle:"નમસ્તે! હું VakilAI છું",wDesc:"તમારા AI ભારતીય કાનૂની સલાહકાર.",ph:"ગુજરાતીમાં પ્રશ્ન ટાઈપ કરો...",q1:"ધરપકડ અધિકારો",q2:"ગ્રાહક ફરિયાદ",q3:"મિલકત કાયદો",q4:"છૂટાછેડા કાયદો",q5:"સાઈબર છેતરપિંડી",q6:"મજૂર અધિકારો",q7:"RTI શું?",c1:"IPC કલમ 420",c2:"જામીન કેવી રીતે?",c3:"RERA શું?",c4:"ગ્રાહક અધિકારો",greeting:"નમસ્તે! શું સમસ્યા છે?",lisHint:"🎤 બોલો...",spkHint:"🔊 બોલે છે..."},ml:{code:'ml-IN',name:'Malayalam',g:'Malayalam',wTitle:"നമസ്കാരം! ഞാൻ VakilAI",wDesc:"നിങ്ങളുടെ AI നിയമ ഉപദേഷ്ടാവ്.",ph:"മലയാളത്തിൽ ചോദ്യം ടൈപ്പ് ചെയ്യൂ...",q1:"അറസ്റ്റിലെ അവകാശങ്ങൾ",q2:"ഉപഭോക്തൃ പരാതി",q3:"സ്വത്ത് നിയമം",q4:"വിവാഹമോചന നിയമം",q5:"സൈബർ തട്ടിപ്പ്",q6:"തൊഴിൽ അവകാശങ്ങൾ",q7:"RTI എന്ത്?",c1:"IPC സെക്ഷൻ 420",c2:"ജാമ്യം എങ്ങനെ?",c3:"RERA എന്ത്?",c4:"ഉപഭോക്തൃ അവകാശങ്ങൾ",greeting:"നമസ്കാരം! എന്ത് പ്രശ്നം?",lisHint:"🎤 സംസാരിക്കൂ...",spkHint:"🔊 സംസാരിക്കുന്നു..."}};
+
+const DOC_FIELDS={rti:[{id:'name',label:'Your Full Name',ph:'Rajesh Kumar'},{id:'address',label:'Your Address',ph:'123 MG Road, Bengaluru'},{id:'department',label:'Department/Ministry',ph:'Ministry of Railways'},{id:'info_sought',label:'Information Sought',ph:'Details of contracts awarded in 2023-24',full:true},{id:'time_period',label:'Time Period',ph:'Last 3 years'}],consumer_complaint:[{id:'name',label:'Your Name',ph:'Full Name'},{id:'address',label:'Your Address',ph:'Full Address'},{id:'company',label:'Company Name',ph:'XYZ Electronics Pvt Ltd'},{id:'company_address',label:'Company Address',ph:'Company Address'},{id:'product',label:'Product / Service',ph:'Samsung TV Model XYZ'},{id:'purchase_date',label:'Purchase Date',ph:'15 March 2024'},{id:'amount',label:'Amount Paid (Rs.)',ph:'45000'},{id:'complaint',label:'Complaint / Defect',ph:'TV stopped working after 2 months',full:true},{id:'relief',label:'Relief Sought',ph:'Full refund + compensation'}],legal_notice:[{id:'sender_name',label:'Your Name',ph:'Full Name'},{id:'sender_address',label:'Your Address',ph:'Full Address'},{id:'recipient_name',label:'Recipient Name',ph:'Landlord / Company'},{id:'recipient_address',label:'Recipient Address',ph:'Full Address'},{id:'matter',label:'Nature of Dispute',ph:'Landlord refusing to return deposit',full:true},{id:'demand',label:'Your Demand',ph:'Return Rs.50,000 within 15 days'},{id:'amount',label:'Amount (Rs.)',ph:'50000'},{id:'deadline',label:'Reply Deadline',ph:'15 days'}],rent_agreement:[{id:'landlord_name',label:'Landlord Name',ph:'Full Name'},{id:'tenant_name',label:'Tenant Name',ph:'Full Name'},{id:'property',label:'Property Address',ph:'Flat 301, ABC Apartments, Bengaluru'},{id:'rent',label:'Monthly Rent (Rs.)',ph:'15000'},{id:'deposit',label:'Security Deposit (Rs.)',ph:'45000'},{id:'period',label:'Lease Period',ph:'11 months'},{id:'start_date',label:'Start Date',ph:'1 March 2025'}],bail_application:[{id:'accused_name',label:'Accused Name',ph:'Full Name'},{id:'fir_no',label:'FIR Number',ph:'FIR No. 123/2024'},{id:'police_station',label:'Police Station',ph:'Koramangala PS'},{id:'offence',label:'Offence / IPC Section',ph:'IPC Section 420'},{id:'arrest_date',label:'Date of Arrest',ph:'15 January 2025'},{id:'court',label:'Court Name',ph:'Sessions Court, Bengaluru'}]};
+
+/* ══════════ STATE ══════════ */
+let LK='en',T=LANGS.en,chatHistory=[];
+let synth=window.speechSynthesis,voices=[],rec=null,listening=false,speaking=false;
+let callOn=false,callMuted=false,spkOn=true,callSecs=0,callTID=null,callRec=null,callHistory=[],callPhase='idle',callLK='en';
+let selFile=null,selFileData=null,curDocType='rti',lastAIText='',lastDocText='',activePanel=null,audioUnlocked=false;
+let bkType='online',bkSlot=null;
+const BOOKED=['10:00 AM','11:30 AM','2:00 PM'];
+const BASE_FEES={online:{30:299,60:499,90:699},offline:{30:499,60:699,90:999}};
+
+/* ── VOICES ── */
+function loadVoices(){voices=synth.getVoices();}
+loadVoices();if(synth.onvoiceschanged!==undefined)synth.onvoiceschanged=loadVoices;
+function getBV(code){if(!voices.length)voices=synth.getVoices();return voices.find(v=>v.lang===code)||voices.find(v=>v.lang.startsWith(code.split('-')[0]))||voices.find(v=>v.lang.startsWith('en'))||null;}
+function unlockAudio(){if(audioUnlocked)return;try{const u=new SpeechSynthesisUtterance('');u.volume=0;u.rate=10;synth.speak(u);audioUnlocked=true;}catch(e){}}
+function doSpeak(text,code,onDone){synth.cancel();const clean=text.replace(/[*_#`~]/g,'').replace(/[⚠📌🚨✅⚖🎯📋👥]/g,'').replace(/\n+/g,'. ').trim().slice(0,900);if(!clean){if(onDone)onDone();return;}const u=new SpeechSynthesisUtterance(clean);u.lang=code||'en-IN';u.rate=0.86;u.pitch=1.05;u.volume=1;const v=getBV(u.lang);if(v)u.voice=v;u.onend=()=>{if(onDone)onDone();};u.onerror=()=>{if(onDone)onDone();};setTimeout(()=>synth.speak(u),50);}
+
+/* ── MODE ── */
+function openApp(){document.getElementById('landing').style.display='none';document.getElementById('app').classList.add('active');document.body.style.overflow='hidden';unlockAudio();}
+function backToLanding(){document.getElementById('landing').style.display='block';document.getElementById('app').classList.remove('active');document.body.style.overflow='';}
+
+/* ── LANGUAGE ── */
+function setLang(code,name,key){LK=key;callLK=key;T=LANGS[key];chatHistory=[];document.getElementById('clLabel').textContent=name;document.getElementById('wTitle').textContent=T.wTitle;document.getElementById('wDesc').textContent=T.wDesc;document.getElementById('ti').placeholder=T.ph;document.getElementById('lBarTxt').textContent=`${name} (${code})`;['q1t','q2t','q3t','q4t','q5t','q6t','q7t'].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=T['q'+(i+1)];});['c1p','c2p','c3p','c4p'].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=T['c'+(i+1)];});document.querySelectorAll('.lang-opt').forEach(el=>{el.classList.remove('active');el.querySelector('.l-ck').style.display='none';});const opt=document.getElementById('opt-'+key);if(opt){opt.classList.add('active');opt.querySelector('.l-ck').style.display='block';}syncCP(key);closeLD();showToast(`🌐 ${name}`);}
+function toggleLD(){document.getElementById('langDD').classList.toggle('open');}
+function closeLD(){document.getElementById('langDD').classList.remove('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('.lang-wrap'))closeLD();});
+function switchCL(code,name,key){callLK=key;callHistory=[];document.getElementById('cLangBadge').textContent='🌐 '+name;syncCP(key);}
+function syncCP(key){document.querySelectorAll('.cpill').forEach(p=>p.classList.remove('active'));const p=document.getElementById('cp-'+key);if(p)p.classList.add('active');}
+
+/* ── PANELS ── */
+function openPanel(id){unlockAudio();if(activePanel===id){closePanel(id);return;}if(activePanel)document.getElementById('panel-'+activePanel).classList.remove('show');activePanel=id;document.getElementById('panel-'+id).classList.add('show');['sb-doc','sb-gen','sb-pred','sb-map'].forEach(s=>{const el=document.getElementById(s);if(el)el.classList.remove('active');});const sbEl=document.getElementById('sb-'+id);if(sbEl)sbEl.classList.add('active');document.getElementById('docIbBtn').classList.toggle('active',id==='doc');if(id==='gen')renderGenFields(curDocType);}
+function closePanel(id){document.getElementById('panel-'+id).classList.remove('show');const s=document.getElementById('sb-'+id);if(s)s.classList.remove('active');document.getElementById('docIbBtn').classList.remove('active');activePanel=null;}
+
+/* ── DOCUMENT UPLOAD ── */
+function dzOver(e){e.preventDefault();document.getElementById('dropZone').classList.add('over');}
+function dzLeave(){document.getElementById('dropZone').classList.remove('over');}
+function dzDrop(e){e.preventDefault();dzLeave();const f=e.dataTransfer.files[0];if(f)procFile(f);}
+function fileChosen(e){const f=e.target.files[0];if(f)procFile(f);}
+function procFile(f){if(!['application/pdf','image/png','image/jpeg','image/webp'].includes(f.type)){showToast('❌ PDF, PNG, JPG, WEBP only');return;}if(f.size>10*1024*1024){showToast('❌ Max 10MB');return;}selFile=f;const reader=new FileReader();reader.onload=e=>{selFileData=e.target.result.split(',')[1];document.getElementById('analyzeBtn').disabled=false;};reader.readAsDataURL(f);document.getElementById('fpIcon').textContent=f.type==='application/pdf'?'📄':'🖼';document.getElementById('fpName').textContent=f.name;document.getElementById('fpSz').textContent=(f.size/1024).toFixed(1)+' KB';document.getElementById('filePrev').style.display='flex';document.getElementById('dropZone').style.display='none';}
+function clearFile(){selFile=null;selFileData=null;document.getElementById('fi').value='';document.getElementById('filePrev').style.display='none';document.getElementById('dropZone').style.display='block';document.getElementById('analyzeBtn').disabled=true;}
+async function analyzeDoc(){if(!selFile||!selFileData)return;const q=document.getElementById('docQ').value.trim();document.getElementById('analyzeBtn').disabled=true;removeWelcome();closePanel('doc');const box=document.getElementById('msgs');const ud=document.createElement('div');ud.className='msg user';ud.innerHTML=`<div class="msg-av">👤</div><div class="msg-body"><div class="doc-bubble"><div style="font-size:22px;margin-bottom:4px">${selFile.type==='application/pdf'?'📄':'🖼'}</div><div class="db-name">${selFile.name}</div><div class="db-meta">${(selFile.size/1024).toFixed(1)} KB</div>${q?`<div class="db-q">❓ ${q}</div>`:''}</div></div>`;box.appendChild(ud);box.scrollTop=box.scrollHeight;document.getElementById('progressLbl').textContent=`Analyzing "${selFile.name}"...`;document.getElementById('progressWrap').classList.add('show');const tp=addTyping();try{const res=await fetch('/analyze-document',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fileData:selFileData,mimeType:selFile.type,fileName:selFile.name,lang:T.g,question:q})});const data=await res.json();document.getElementById('progressWrap').classList.remove('show');tp.remove();if(data.error)throw new Error(data.error);const ad=document.createElement('div');ad.className='msg ai';ad.style.maxWidth='92%';ad.innerHTML=`<div class="msg-av">⚖</div><div class="msg-body"><div class="msg-lang">${T.name} · Document Analysis</div><div class="doc-card"><div class="doc-card-head">🔍 ${selFile.name} <span class="dc-badge">AI Review</span></div><div class="doc-card-body">${fmtDoc(data.reply)}</div></div><div class="msg-actions">${acts(data.reply)}</div></div>`;box.appendChild(ad);box.scrollTop=box.scrollHeight;lastAIText=data.reply;chatHistory.push({role:'user',content:`[Document: ${selFile.name}] ${q||'Analyze this.'}`});chatHistory.push({role:'model',content:data.reply});speakReply(data.reply);}catch(err){document.getElementById('progressWrap').classList.remove('show');tp.remove();addMsg('ai','⚠ Error: '+err.message);}document.getElementById('analyzeBtn').disabled=false;clearFile();}
+
+/* ── DOC GENERATOR ── */
+function selDocType(type,btn){curDocType=type;document.querySelectorAll('.gen-type-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');renderGenFields(type);document.getElementById('docOutput').classList.remove('show');document.getElementById('docOutActions').classList.remove('show');}
+function renderGenFields(type){const fields=DOC_FIELDS[type]||[];document.getElementById('genFields').innerHTML=fields.map(f=>`<div class="gen-field${f.full?' full':''}"><label>${f.label}</label>${f.full?`<textarea id="gf_${f.id}" placeholder="${f.ph}"></textarea>`:`<input id="gf_${f.id}" placeholder="${f.ph}">`}</div>`).join('');}
+async function generateDoc(){const fields=DOC_FIELDS[curDocType]||[];const details={};fields.forEach(f=>{const el=document.getElementById('gf_'+f.id);if(el)details[f.id]=el.value.trim();});const btn=document.getElementById('genBtn');const status=document.getElementById('genStatus');btn.disabled=true;status.textContent='⏳ Generating...';try{const res=await fetch('/generate-document',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({docType:curDocType,details,lang:T.g})});const data=await res.json();if(data.error)throw new Error(data.error);lastDocText=data.document;document.getElementById('docOutput').textContent=data.document;document.getElementById('docOutput').classList.add('show');document.getElementById('docOutActions').classList.add('show');status.textContent='✅ Done!';setTimeout(()=>status.textContent='',2000);showToast('✅ Generated!');}catch(err){status.textContent='❌ '+err.message;}btn.disabled=false;}
+function downloadDoc(){if(!lastDocText)return;const blob=new Blob([lastDocText],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='VakilAI_'+curDocType+'_'+Date.now()+'.txt';a.click();}
+function shareDocWA(){if(!lastDocText)return;window.open('https://wa.me/?text='+encodeURIComponent(lastDocText.slice(0,600)+'...\n\n_VakilAI_'),'_blank');}
+function addDocToChat(){if(!lastDocText)return;removeWelcome();addMsg('user','📝 Generated document ready.');addMsg('ai',`✅ Your ${curDocType.replace('_',' ')} is generated! Download or share via WhatsApp. Need help with any clause?\n\n⚠ This is general guidance only. Consult a licensed advocate for official advice.`,T.name);closePanel('gen');}
+
+/* ── PREDICTOR ── */
+async function predictCase(){const facts=document.getElementById('predFacts').value.trim();if(!facts){showToast('Describe your case');return;}const btn=document.getElementById('predBtn');btn.disabled=true;btn.textContent='🔮 Analyzing...';document.getElementById('predResult').innerHTML='<div class="map-status">⏳ Analyzing...</div>';document.getElementById('predResult').classList.add('show');try{const res=await fetch('/predict-outcome',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({facts,lang:T.g})});const data=await res.json();if(data.error)throw new Error(data.error);renderPrediction(data.prediction);}catch(err){document.getElementById('predResult').innerHTML=`<div style="color:var(--c-red);font-size:13px;padding:12px">❌ ${err.message}</div>`;}btn.disabled=false;btn.textContent='🔮 Predict Outcome';}
+function renderPrediction(p){const pct=Math.min(100,Math.max(0,parseInt(p.win_probability)||50));const str=(p.strength||'Moderate').toLowerCase().replace(/\s+/g,'-');const nd=(pct/100)*180-90;const fors=(p.key_factors_for||[]).map(f=>`<li>${f}</li>`).join('');const against=(p.key_factors_against||[]).map(f=>`<li>${f}</li>`).join('');const actions=(p.recommended_actions||[]).map(a=>`<li>${a}</li>`).join('');const laws=(p.applicable_laws||[]);document.getElementById('predResult').innerHTML=`<div class="pred-gauge-wrap"><div class="pred-gauge"><div class="pred-mask"></div><div class="pred-needle" id="predNeedle" style="transform:rotate(-90deg)"></div></div><div class="pred-pct">${pct}%</div><span class="pred-strength ps-${str}">${p.strength||'Moderate'}</span></div><div class="pred-meta"><div class="pred-meta-pill">🏛 <span>${p.case_type||'Legal Case'}</span></div><div class="pred-meta-pill">⏱ <span>${p.estimated_duration||'TBD'}</span></div><div class="pred-meta-pill">⚖ <span>${p.court||'Court'}</span></div></div><div class="pred-grid"><div class="pred-card"><div class="pred-card-ttl">✅ Factors For</div><ul>${fors||'<li>Describe case for better analysis</li>'}</ul></div><div class="pred-card"><div class="pred-card-ttl">⚠ Factors Against</div><ul>${against||'<li>Review evidence carefully</li>'}</ul></div><div class="pred-card full"><div class="pred-card-ttl">🎯 Recommended Actions</div><ul>${actions||'<li>Consult an advocate</li>'}</ul></div>${laws.length?`<div class="pred-card full"><div class="pred-card-ttl">📋 Applicable Laws</div><ul>${laws.map(l=>'<li>'+l+'</li>').join('')}</ul></div>`:''}</div><div class="pred-summary">💬 ${p.summary||''}</div><div style="display:flex;gap:8px;margin-top:10px"><button class="gen-go-btn" style="font-size:12px;padding:7px 13px" onclick="window.open('https://wa.me/?text='+encodeURIComponent('⚖️ VakilAI Prediction: ${pct}% Win · ${(p.strength||'').replace(/'/g,'')} 🇮🇳'),'_blank')">📲 Share</button><button class="gen-go-btn" style="font-size:12px;padding:7px 13px;background:var(--c-blue2)" onclick="document.getElementById('ti').value='I have a legal case. What are my next steps?';closePanel('pred');send()">💬 Ask VakilAI</button></div>`;setTimeout(()=>{const n=document.getElementById('predNeedle');if(n)n.style.transform=`rotate(${nd}deg)`;},100);}
+
+/* ── FIND LAWYER ── */
+function useMyLocation(){const btn=document.querySelector('.map-loc-btn');btn.disabled=true;if(!navigator.geolocation){showToast('Not supported');btn.disabled=false;return;}navigator.geolocation.getCurrentPosition(pos=>{btn.disabled=false;showLawyerMap(pos.coords.latitude,pos.coords.longitude,null);},()=>{btn.disabled=false;showToast('Location denied');});}
+function searchLawyers(){const city=document.getElementById('mapCity').value.trim();if(!city){showToast('Enter a city');return;}showLawyerMap(null,null,city);}
+function showLawyerMap(lat,lng,city){let url=lat&&lng?`https://www.google.com/maps/search/advocate+lawyer/@${lat},${lng},14z`:`https://www.google.com/maps/search/${encodeURIComponent((city||'')+' advocate lawyer')}`;const loc=city||'your location';document.getElementById('lawyerList').innerHTML=`<div style="background:var(--c-blue-soft);border:1px solid #93c5fd;border-radius:10px;padding:14px;margin-bottom:10px"><div style="font-size:13px;font-weight:600;color:var(--c-blue2);margin-bottom:7px">📍 Advocates near ${loc}</div><a href="${url}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--c-blue2);color:#fff;padding:8px 14px;border-radius:8px;font-size:12.5px;font-weight:600;text-decoration:none">🗺 Open in Google Maps</a></div><div style="background:var(--c-red-soft);border:1px solid #fca5a5;border-radius:10px;padding:12px"><div style="font-size:12px;font-weight:700;color:var(--c-red);margin-bottom:7px">🆘 EMERGENCY HELPLINES</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${[['⚖️ Free Legal Aid','15100'],['👮 Police','100'],['👩 Women','1091'],['💻 Cyber Crime','1930'],['🏛 NALSA','15100'],['🚨 Emergency','112']].map(([n,num])=>`<a href="tel:${num}" style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #fca5a5;border-radius:6px;padding:6px 9px;text-decoration:none"><span>${n.split(' ')[0]}</span><div><div style="font-size:10.5px;font-weight:600;color:var(--c-dark)">${n.slice(n.indexOf(' ')+1)}</div><div style="font-size:12px;font-weight:700;color:var(--c-red)">${num}</div></div></a>`).join('')}</div></div>`;}
+
+/* ── SHARE/COPY ── */
+function acts(text){return`<button class="msg-act-btn btn-wa" onclick="shareWA(this)">📲 WhatsApp</button><button class="msg-act-btn btn-cp" onclick="cpTxt(this)">📋 Copy</button>`;}
+function shareWA(btn){const t=(btn.closest('.msg-body')?.querySelector('.msg-text,.doc-card-body')?.innerText||lastAIText).replace(/[*_]/g,'').slice(0,800);window.open('https://wa.me/?text='+encodeURIComponent(`⚖️ Legal advice from VakilAI:\n\n${t}\n\n_VakilAI 🇮🇳_`),'_blank');}
+function cpTxt(btn){const t=btn.closest('.msg-body')?.querySelector('.msg-text,.doc-card-body')?.innerText||lastAIText;navigator.clipboard.writeText(t).then(()=>{showToast('✅ Copied!');btn.textContent='✅ Copied';setTimeout(()=>btn.textContent='📋 Copy',2000);});}
+
+/* ── TEXT FORMATTING ── */
+function fmtText(t){if(!t)return'';let s=t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/^#{1,3}\s+(.+)$/gm,'<strong style="display:block;margin-top:8px">$1</strong>').replace(/^[-•]\s+(.+)$/gm,'<li>$1</li>').replace(/^\d+\.\s+(.+)$/gm,'<li>$1</li>');s=s.replace(/((?:<li>.*?<\/li>\n?)+)/g,m=>`<ul>${m}</ul>`);s=s.replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');s=s.replace(/(⚠[^<\n]*)/g,'<span class="msg-note">$1</span>');return s;}
+function fmtDoc(t){if(!t)return'';const lines=t.replace(/\r\n/g,'\n').split('\n');const out=[];let inList=false;const SR=/^(?:\*{1,2})?(DOCUMENT TYPE|KEY PARTIES|IMPORTANT CLAUSES|RED FLAGS|LEGAL ASSESSMENT|RISK RATING|NEXT STEPS|OVERVIEW|SUMMARY)[:\s*]*(.*?)(?:\*{1,2})?$/i;const BR=/^\*{2}([^*]{4,60})\*{2}:?\s*(.*)$/;for(const line of lines){const tr=line.trim();if(!tr){if(inList){out.push('</ul>');inList=false;}out.push('<br>');continue;}if(/^[-•*]\s+/.test(tr)){if(!inList){out.push('<ul>');inList=true;}out.push(`<li>${ifmt(tr.replace(/^[-•*]\s+/,''))}</li>`);continue;}if(/^\d+\.\s+/.test(tr)){if(!inList){out.push('<ul>');inList=true;}out.push(`<li>${ifmt(tr.replace(/^\d+\.\s+/,''))}</li>`);continue;}if(inList){out.push('</ul>');inList=false;}const sm=tr.match(SR);if(sm){const icon=sIcon(sm[1]);out.push(`<div class="doc-section">${icon} ${sm[1].trim()}</div>`);if(sm[2].trim())out.push(`<p>${ifmt(sm[2].trim())}</p>`);continue;}const bm=tr.match(BR);if(bm&&bm[1].length<50){out.push(`<div class="doc-section">${sIcon(bm[1])} ${bm[1].trim()}</div>`);if(bm[2].trim())out.push(`<p>${ifmt(bm[2].trim())}</p>`);continue;}if(tr.startsWith('⚠')){out.push(`<div class="msg-note">${ifmt(tr)}</div>`);continue;}out.push(`<p style="margin:3px 0">${ifmt(tr)}</p>`);}if(inList)out.push('</ul>');return out.join('\n');}
+function sIcon(t){const u=t.toUpperCase();if(u.includes('TYPE')||u.includes('DOCUMENT'))return'📋';if(u.includes('PART'))return'👥';if(u.includes('CLAUSE'))return'📌';if(u.includes('RED')||u.includes('FLAG'))return'🚨';if(u.includes('LEGAL')||u.includes('ASSESS'))return'⚖️';if(u.includes('RISK')||u.includes('RATING'))return'🎯';if(u.includes('NEXT')||u.includes('STEP'))return'✅';return'📌';}
+function ifmt(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>');}
+
+/* ── CHAT ── */
+async function send(){unlockAudio();const inp=document.getElementById('ti');const msg=inp.value.trim();if(!msg)return;inp.value='';resize(inp);removeWelcome();document.getElementById('sendBtn').disabled=true;addMsg('user',msg);chatHistory.push({role:'user',content:`Please respond in ${T.g}. `+msg});const tp=addTyping();try{const res=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`Please respond in ${T.g}. `+msg,history:chatHistory.slice(0,-1),lang:T.g})});const data=await res.json();tp.remove();if(data.error)throw new Error(data.error);lastAIText=data.reply;addMsg('ai',data.reply,T.name,true);chatHistory.push({role:'model',content:data.reply});speakReply(data.reply);}catch(err){tp.remove();addMsg('ai','⚠ Error: '+err.message);chatHistory.pop();}document.getElementById('sendBtn').disabled=false;}
+function ask(q){if(!document.getElementById('app').classList.contains('active'))openApp();document.getElementById('ti').value=q;send();}
+function speakReply(text){const mb=document.getElementById('micBtn');mb.classList.add('ib-spk');mb.textContent='🔊';speaking=true;doSpeak(text,T.code,()=>{speaking=false;mb.classList.remove('ib-spk');mb.textContent='🎤';});}
+function addMsg(role,text,langName,withActions){const box=document.getElementById('msgs');const d=document.createElement('div');d.className=`msg ${role}`;const lt=langName&&role==='ai'?`<div class="msg-lang">${langName}</div>`:'';const as=withActions&&role==='ai'?`<div class="msg-actions">${acts(text)}</div>`:'';d.innerHTML=`<div class="msg-av">${role==='ai'?'⚖':'👤'}</div><div class="msg-body">${lt}<div class="msg-text">${fmtText(text)}</div>${as}</div>`;box.appendChild(d);box.scrollTop=box.scrollHeight;return d;}
+function addTyping(){const box=document.getElementById('msgs');const d=document.createElement('div');d.className='typing-wrap';d.innerHTML=`<div class="msg-av" style="width:30px;height:30px;border-radius:50%;background:var(--c-dark);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:2px">⚖</div><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;box.appendChild(d);box.scrollTop=box.scrollHeight;return d;}
+function removeWelcome(){const w=document.getElementById('welcome');if(w)w.remove();}
+function resize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,96)+'px';}
+function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+function showToast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600);}
+
+/* ── MIC ── */
+function toggleMic(){unlockAudio();if(speaking){synth.cancel();speaking=false;const b=document.getElementById('micBtn');b.classList.remove('ib-spk');b.textContent='🎤';return;}listening?stopMic():startMic();}
+function startMic(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){showToast('Use Chrome for voice');return;}rec=new SR();rec.lang=T.code;rec.interimResults=true;rec.onstart=()=>{listening=true;document.getElementById('micBtn').classList.add('ib-on');document.getElementById('micBtn').textContent='🔴';};rec.onresult=e=>{const t=Array.from(e.results).map(r=>r[0].transcript).join('');document.getElementById('ti').value=t;resize(document.getElementById('ti'));if(e.results[e.results.length-1].isFinal){stopMic();setTimeout(send,200);}};rec.onerror=()=>stopMic();rec.onend=()=>{if(listening)stopMic();};try{rec.start();}catch(e){}}
+function stopMic(){listening=false;if(rec)try{rec.stop();}catch(e){}document.getElementById('micBtn').classList.remove('ib-on');document.getElementById('micBtn').textContent='🎤';}
+
+/* ── CALL ── */
+function startCall(){unlockAudio();synth.cancel();callOn=true;callPhase='ringing';callHistory=[];callSecs=0;callMuted=false;spkOn=true;callLK=LK;const CL=LANGS[callLK];document.getElementById('callModal').classList.add('show');document.getElementById('cStatus').textContent='Ringing...';document.getElementById('cTimer').textContent='';document.getElementById('cTranscript').innerHTML='<em style="color:#aaa">Connecting...</em>';document.getElementById('cWave').classList.remove('show');document.getElementById('callAv').className='call-av';document.getElementById('muteBtn').classList.remove('muted');document.getElementById('muteBtn').querySelector('.ctrl-icon').textContent='🎤';document.getElementById('spkBtn').querySelector('.ctrl-icon').textContent='🔊';document.getElementById('cLangBadge').textContent='🌐 '+CL.name;syncCP(callLK);document.getElementById('cr1').className='cring';document.getElementById('cr2').className='cring';setTimeout(()=>{if(callOn)callPickup();},800);}
+function callPickup(){callTID=setInterval(()=>{callSecs++;const m=String(Math.floor(callSecs/60)).padStart(2,'0');const s=String(callSecs%60).padStart(2,'0');document.getElementById('cTimer').textContent=`${m}:${s}`;},1000);document.getElementById('cr1').className='cring gold';document.getElementById('cr2').className='cring gold';callAISpeak(LANGS[callLK].greeting,()=>{if(callOn)callListen();});}
+function callAISpeak(text,onDone){if(!callOn)return;callPhase='ai';document.getElementById('cStatus').textContent=LANGS[callLK].spkHint||'🔊 Speaking...';document.getElementById('callAv').className='call-av speaking';document.getElementById('cWave').classList.add('show');callAddLine('⚖ VakilAI',text);if(!spkOn){document.getElementById('cWave').classList.remove('show');document.getElementById('callAv').className='call-av';if(onDone)onDone();return;}doSpeak(text,LANGS[callLK].code,()=>{if(!callOn)return;document.getElementById('cWave').classList.remove('show');document.getElementById('callAv').className='call-av';if(onDone)onDone();});}
+function callListen(){if(!callOn)return;if(callMuted){document.getElementById('cStatus').textContent='🔇 Muted';return;}callPhase='user';document.getElementById('cStatus').textContent=LANGS[callLK].lisHint||'🎤 Listening...';document.getElementById('callAv').className='call-av listening';const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){callAddLine('⚠','Use Chrome for voice.');return;}callRec=new SR();callRec.lang=LANGS[callLK].code;callRec.interimResults=true;let ft='';callRec.onresult=e=>{ft='';let it='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)ft+=e.results[i][0].transcript;else it+=e.results[i][0].transcript;}if(it||ft)document.getElementById('cStatus').textContent='🎤 '+(ft||it).slice(0,50);};callRec.onend=()=>{document.getElementById('callAv').className='call-av';if(!callOn)return;const s=ft.trim();if(s&&s.length>=2){callAddLine('👤 You',s);callPhase='processing';document.getElementById('cStatus').textContent='⏳ Processing...';callProcess(s);}else if(callPhase==='user'&&callOn){setTimeout(()=>{if(callOn&&callPhase==='user')callListen();},1500);}};callRec.onerror=e=>{document.getElementById('callAv').className='call-av';if(e.error!=='not-allowed')setTimeout(()=>{if(callOn&&callPhase==='user')callListen();},1000);};try{callRec.start();}catch(e){}}
+async function callProcess(q){const CL=LANGS[callLK];const fq=`Please respond in ${CL.g}. `+q;callHistory.push({role:'user',content:fq});try{const res=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:fq,history:callHistory.slice(0,-1),lang:CL.g})});const data=await res.json();if(data.error)throw new Error(data.error);callHistory.push({role:'model',content:data.reply});callAISpeak(data.reply,()=>{if(callOn)callListen();});}catch(err){callAISpeak("Sorry, connection issue. Please try again.",()=>{if(callOn)callListen();});}}
+function callAddLine(who,text){const box=document.getElementById('cTranscript');const d=document.createElement('div');d.style.marginBottom='8px';const c=who.includes('VakilAI')?'var(--c-dark)':who.includes('You')?'var(--c-blue2)':'var(--c-red)';d.innerHTML=`<div style="font-size:10px;font-weight:700;color:${c};margin-bottom:2px">${who}</div><div style="font-size:11.5px;color:var(--c-mid);line-height:1.5">${text.slice(0,280)}${text.length>280?'...':''}</div>`;box.appendChild(d);box.scrollTop=box.scrollHeight;}
+function endCall(){callOn=false;callPhase='idle';synth.cancel();if(callRec)try{callRec.stop();}catch(e){}if(callTID)clearInterval(callTID);document.getElementById('callModal').classList.remove('show');}
+function toggleMute(){callMuted=!callMuted;const btn=document.getElementById('muteBtn');const ic=btn.querySelector('.ctrl-icon');if(callMuted){btn.classList.add('muted');ic.textContent='🔇';if(callRec)try{callRec.stop();}catch(e){}document.getElementById('cStatus').textContent='🔇 Muted';}else{btn.classList.remove('muted');ic.textContent='🎤';if(callPhase==='user'&&callOn)callListen();}}
+function toggleSpk(){spkOn=!spkOn;const ic=document.getElementById('spkBtn').querySelector('.ctrl-icon');if(!spkOn){synth.cancel();ic.textContent='🔕';showToast('Speaker off');}else{ic.textContent='🔊';showToast('Speaker on');}}
+
+/* ── BOOKING ── */
+function openBookingModal(){document.getElementById('bookingModal').classList.add('show');document.getElementById('bkStep1').style.display='block';document.getElementById('bkStep2').style.display='none';document.getElementById('bkDate').min=new Date().toISOString().split('T')[0];updateBkSummary();}
+function closeBookingModal(){document.getElementById('bookingModal').classList.remove('show');}
+document.getElementById('bookingModal').addEventListener('click',e=>{if(e.target===document.getElementById('bookingModal'))closeBookingModal();});
+function selBkType(type){bkType=type;bkSlot=null;['online','offline'].forEach(t=>{const el=document.getElementById('bkt-'+t);el.className=`bkt ${t}${t===type?' sel':''}`;});updateBkSummary();valBk();}
+function loadBkSlots(){const all=['9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM','12:00 PM','2:00 PM','2:30 PM','3:00 PM','3:30 PM','4:00 PM','4:30 PM','5:00 PM'];document.getElementById('bkSlots').innerHTML=all.map(s=>`<button class="slot${BOOKED.includes(s)?' booked':''}" onclick="${BOOKED.includes(s)?'':'selSlot(this,\''+s+'\')'}" ${BOOKED.includes(s)?'disabled':''}>${s}${BOOKED.includes(s)?' ✗':''}</button>`).join('');bkSlot=null;valBk();}
+function selSlot(el,slot){bkSlot=slot;document.querySelectorAll('.slot:not(.booked)').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');valBk();}
+function updateBkSummary(){const dur=parseInt(document.getElementById('bkDur')?.value||60);const base=(BASE_FEES[bkType]||BASE_FEES.online)[dur]||499;const total=base+29;document.getElementById('bkSumType').textContent=bkType==='online'?'💻 Online':'🏛️ In-Person';document.getElementById('bkSumDur').textContent=dur+' minutes';document.getElementById('bkSumBase').textContent='₹'+base;document.getElementById('bkSumTotal').textContent='₹'+total;document.getElementById('bkTotalDisplay').textContent='— ₹'+total;valBk();}
+function valBk(){const n=document.getElementById('bkName')?.value.trim();const p=document.getElementById('bkPhone')?.value.trim();const i=document.getElementById('bkIssue')?.value.trim();document.getElementById('bkSubmitBtn').disabled=!(n&&p&&p.length>=10&&i&&bkSlot);}
+function confirmBooking(){const ref='VK-'+Math.floor(100000+Math.random()*900000);const date=document.getElementById('bkDate').value;const dur=document.getElementById('bkDur').value;const ds=date?new Date(date).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'}):'TBD';document.getElementById('bkRefNum').textContent=ref;document.getElementById('bkApptDetails').textContent=`${ds} · ${bkSlot||'TBD'} · ${dur} min · ${bkType==='online'?'Online':'In-Person'}`;document.getElementById('bkStep1').style.display='none';document.getElementById('bkStep2').style.display='block';}
+function bkShareWA(){const ref=document.getElementById('bkRefNum').textContent;const det=document.getElementById('bkApptDetails').textContent;window.open('https://wa.me/?text='+encodeURIComponent(`✅ VakilAI Consultation Booked!\n\nRef: ${ref}\n${det}\n\nVakilAI 🇮🇳`),'_blank');}
+
+/* ── INIT ── */
+document.addEventListener('click',unlockAudio,{once:false});
+setLang('en-IN','English','en');
+renderGenFields('rti');
+document.getElementById('bkDate').min=new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>
